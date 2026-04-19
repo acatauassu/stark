@@ -214,27 +214,54 @@
     border: 1px solid var(--border);
     padding: 1rem;
     margin-bottom: 1rem;
+    transition: border-color 0.3s, background 0.3s;
   }
 
   .ap-status.active {
-    border-color: rgba(26,86,219,0.4);
-    background: rgba(26,86,219,0.06);
+    border-color: rgba(34,197,94,0.5);
+    background: rgba(34,197,94,0.06);
   }
 
   .ap-name {
     font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 0.9rem;
-    color: var(--blue-light);
+    color: var(--muted);
     margin-bottom: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transition: color 0.3s;
+  }
+
+  .ap-status.active .ap-name {
+    color: var(--green);
   }
 
   .ap-desc {
     font-size: 0.75rem;
     color: var(--muted);
+  }
+
+  /* Model badge */
+  .model-badge {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .model-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--blue-light);
+    border-radius: 50%;
   }
 
   /* Upload area */
@@ -692,6 +719,57 @@
   .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-send svg { stroke: white; width: 16px; height: 16px; }
 
+  .btn-attach {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: color 0.2s;
+    padding: 0;
+  }
+
+  .btn-attach:hover { color: var(--blue-light); }
+  .btn-attach svg { width: 17px; height: 17px; stroke: currentColor; }
+
+  /* Attached file preview */
+  .attached-file {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(26,86,219,0.1);
+    border: 1px solid rgba(26,86,219,0.25);
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    color: var(--blue-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .attached-file .remove-file {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    margin-left: auto;
+  }
+
+  .attached-file .remove-file:hover { color: var(--red); }
+
+  /* Chat drop zone */
+  .messages-wrap.chat-drop-over {
+    outline: 2px dashed var(--blue);
+    outline-offset: -8px;
+    background: rgba(26,86,219,0.04);
+  }
+
   .input-hint {
     font-size: 0.7rem;
     color: var(--muted);
@@ -810,6 +888,7 @@
   <aside class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Agente Principal</div>
+      <div class="model-badge">Claude Sonnet 4.6</div>
       <div class="ap-status" id="apStatus">
         <div class="ap-name" id="apStatusName">Nao configurado</div>
         <div class="ap-desc" id="apStatusDesc">Faca upload do seu skill.md para ativar</div>
@@ -880,10 +959,26 @@
 
     <!-- Input -->
     <div class="input-area">
+      <div class="attached-file" id="attachedFilePreview" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span id="attachedFileName"></span>
+        <button class="remove-file" onclick="removeAttachment()" title="Remover arquivo">&times;</button>
+      </div>
       <div class="input-row">
+        <button class="btn-attach" onclick="triggerChatUpload()" title="Anexar arquivo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </button>
         <textarea id="inputMsg" placeholder="Digite sua mensagem..." rows="1"
           onkeydown="handleKey(event)"
-          oninput="autoResize(this)"></textarea>
+          oninput="autoResize(this)"
+          ondragover="handleChatDragOver(event)"
+          ondragleave="handleChatDragLeave(event)"
+          ondrop="handleChatDrop(event)"></textarea>
         <button class="btn-send" id="btnSend" onclick="sendMessage()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="22" y1="2" x2="11" y2="13"/>
@@ -891,8 +986,9 @@
           </svg>
         </button>
       </div>
-      <div class="input-hint">Enter para enviar &middot; Shift+Enter para nova linha</div>
+      <div class="input-hint">Enter para enviar &middot; Shift+Enter para nova linha &middot; Clipe para anexar arquivo</div>
     </div>
+    <input type="file" id="chatFileInput" accept=".txt,.md,.csv,.html,.json,.xml" style="display:none" onchange="handleChatFile(event)">
   </section>
 
 </div>
@@ -1377,15 +1473,22 @@ async function sendMessage() {
     conv.firstMsg = text.substring(0, 50);
   }
 
+  // Append file content if attached
+  let fullUserContent = text;
+  if (attachedFileContent) {
+    fullUserContent = `${text}\n\n---\n**Arquivo anexado: ${attachedFileNameStr}**\n\`\`\`\n${attachedFileContent}\n\`\`\``;
+    removeAttachment();
+  }
+
   // Add user message
-  conv.messages.push({ role: 'user', content: text });
+  conv.messages.push({ role: 'user', content: fullUserContent });
   input.value = '';
   input.style.height = 'auto';
 
   // Render
   const wrap = document.getElementById('messagesWrap');
   if (wrap.querySelector('.welcome-state')) wrap.innerHTML = '';
-  appendMessage('user', text, false);
+  appendMessage('user', fullUserContent, false);
 
   // Typing indicator
   const typingEl = document.createElement('div');
@@ -1431,7 +1534,7 @@ Se o assunto for da sua competencia direta, responda sem rotear.`;
     ? (apSystemPrompt || '') + AP_ROUTING_CONTEXT
     : agent.system;
 
-  // Build messages array (max last 20 messages for context)
+  // Build messages array (max last 20 for context)
   const msgHistory = conv.messages.slice(-20).map(m => ({
     role: m.role,
     content: m.content
@@ -1692,6 +1795,63 @@ async function removeAP() {
     showToast('Agente Principal removido', '');
     if (currentAgent === 'ap') showAPLock();
   }
+}
+
+// ===== CHAT FILE ATTACHMENT =====
+let attachedFileContent = null;
+let attachedFileNameStr = null;
+
+function triggerChatUpload() {
+  document.getElementById('chatFileInput').click();
+}
+
+function handleChatDragOver(event) {
+  event.preventDefault();
+  document.getElementById('messagesWrap').classList.add('chat-drop-over');
+}
+
+function handleChatDragLeave(event) {
+  document.getElementById('messagesWrap').classList.remove('chat-drop-over');
+}
+
+function handleChatDrop(event) {
+  event.preventDefault();
+  document.getElementById('messagesWrap').classList.remove('chat-drop-over');
+  const file = event.dataTransfer.files[0];
+  if (file) processChatFile(file);
+}
+
+function handleChatFile(event) {
+  const file = event.target.files[0];
+  if (file) processChatFile(file);
+  event.target.value = '';
+}
+
+function processChatFile(file) {
+  const MAX_SIZE = 200 * 1024; // 200KB
+  if (file.size > MAX_SIZE) {
+    showToast('Arquivo muito grande. Maximo: 200KB', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    attachedFileContent = e.target.result;
+    attachedFileNameStr = file.name;
+
+    const preview = document.getElementById('attachedFilePreview');
+    document.getElementById('attachedFileName').textContent = file.name;
+    preview.style.display = 'flex';
+    document.getElementById('inputMsg').focus();
+  };
+  reader.onerror = () => showToast('Erro ao ler o arquivo', 'error');
+  reader.readAsText(file, 'UTF-8');
+}
+
+function removeAttachment() {
+  attachedFileContent = null;
+  attachedFileNameStr = null;
+  document.getElementById('attachedFilePreview').style.display = 'none';
 }
 
 // ===== TOAST =====
