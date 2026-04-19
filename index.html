@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WIN STARK — Executive AI Cockpit</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0B0F1A;
+      --navy-light: #131929;
+      --navy-card:  #1A2235;
+      --blue:       #4EA9F2;
+      --teal:       #2DD4BF;
+      --gold:       #C9A227;
+      --purple:     #A78BFA;
+      --white:      #F5F7FA;
+      --muted:      #8896A8;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: var(--navy-light);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo-badge {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--gold), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 900; color: var(--navy); letter-spacing: -.5px;
+    }
+    .logo-name { display: flex; align-items: baseline; gap: 4px; }
+    .logo-name b { font-weight: 800; font-size: 15px; letter-spacing: .04em; }
+    .logo-name span { font-weight: 300; font-size: 15px; color: var(--muted); }
+    .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,.1); margin: 0 4px; }
+    .product-label { font-size: 12px; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .date-box { font-size: 12px; color: var(--muted); text-align: right; line-height: 1.5; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(201,162,39,.12);
+      border: 1px solid rgba(201,162,39,.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--gold);
+    }
+
+    /* ── MAIN ── */
+    .main { max-width: 900px; margin: 0 auto; padding: 40px 24px 64px; }
+
+    /* ── WELCOME ── */
+    .welcome { margin-bottom: 36px; }
+    .status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--teal); box-shadow: 0 0 8px var(--teal);
+      animation: pulseAnim 2s ease-in-out infinite;
+    }
+    @keyframes pulseAnim { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .status-label { font-size: 11px; color: var(--teal); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+    .welcome h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .welcome p { color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+    /* ── CEO CARD ── */
+    .ceo-card {
+      background: linear-gradient(135deg, var(--navy-card) 0%, #19251A 100%);
+      border: 1px solid rgba(201,162,39,.3);
+      border-radius: 16px; padding: 22px 24px;
+      margin-bottom: 28px; cursor: pointer;
+      display: flex; align-items: center; gap: 20px;
+      transition: border-color .2s, box-shadow .2s;
+      box-shadow: 0 0 32px rgba(201,162,39,.07);
+    }
+    .ceo-card:hover { border-color: rgba(201,162,39,.55); box-shadow: 0 0 48px rgba(201,162,39,.16); }
+    .ceo-icon-wrap {
+      width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+      background: rgba(201,162,39,.1); border: 1px solid rgba(201,162,39,.35);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold);
+    }
+    .ceo-info { flex: 1; }
+    .ceo-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+    .ceo-name { font-weight: 800; font-size: 16px; }
+    .ceo-badge {
+      font-size: 10px; color: var(--gold);
+      background: rgba(201,162,39,.1); border: 1px solid rgba(201,162,39,.25);
+      border-radius: 20px; padding: 2px 10px;
+      font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .ceo-desc { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+    .ceo-arrow { color: var(--gold); font-size: 18px; opacity: .65; flex-shrink: 0; }
+
+    /* ── DIVIDER ── */
+    .section-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .div-line { flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+    .div-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+
+    /* ── GRID ── */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 40px; }
+
+    /* ── DIRETORIA CARD ── */
+    .dir-card {
+      background: var(--navy-card);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px; padding: 20px;
+      cursor: pointer; display: flex; flex-direction: column;
+      transition: background .2s, border-color .2s, transform .18s, box-shadow .2s;
+    }
+    .dir-card:hover { background: var(--navy-light); transform: translateY(-2px); }
+    .dir-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+    .dir-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dir-title { }
+    .dir-name { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
+    .dir-sub { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .dir-desc { color: var(--muted); font-size: 13px; line-height: 1.55; flex: 1; margin-bottom: 16px; }
+    .dir-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+    .action-btn {
+      font-size: 11.5px; font-family: inherit; font-weight: 500;
+      border-radius: 20px; padding: 5px 12px; cursor: pointer;
+      border-width: 1px; border-style: solid;
+      transition: opacity .15s, transform .1s;
+      letter-spacing: .01em;
+    }
+    .action-btn:hover { opacity: .8; transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid rgba(255,255,255,.05); padding-top: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-label { font-size: 12px; color: rgba(136,150,168,.4); }
+    .footer-dots { display: flex; gap: 6px; }
+    .fdot { width: 6px; height: 6px; border-radius: 50%; opacity: .5; }
+
+    /* ── OVERLAY ── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+
+    /* ── MODAL ── */
+    .modal {
+      background: var(--navy-card);
+      border-radius: 16px;
+      width: 100%; max-width: 660px;
+      height: 86vh; max-height: 700px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transform: translateY(14px) scale(.97);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; gap: 12px;
+      background: var(--navy-light); flex-shrink: 0;
+    }
+    .m-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .m-title { font-weight: 700; font-size: 15px; }
+    .m-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .m-close {
+      margin-left: auto; background: none; border: none;
+      color: var(--muted); cursor: pointer; font-size: 22px;
+      line-height: 1; padding: 2px 4px; border-radius: 4px;
+      transition: color .15s;
+    }
+    .m-close:hover { color: var(--white); }
+
+    /* ── MESSAGES ── */
+    .messages {
+      flex: 1; overflow-y: auto;
+      padding: 20px 20px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 4px; }
+
+    .msg { display: flex; }
+    .msg.user { justify-content: flex-end; }
+    .bubble {
+      max-width: 88%; padding: 11px 15px;
+      font-size: 13.5px; line-height: 1.62;
+      border-radius: 14px;
+    }
+    .bubble.agent {
+      background: var(--navy-light);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px 14px 14px 4px;
+      color: var(--white);
+    }
+    .bubble.user { border-radius: 14px 14px 4px 14px; }
+
+    /* markdown inside bubble */
+    .bubble h3 { font-size: 14px; font-weight: 700; margin: 8px 0 4px; }
+    .bubble h4 { font-size: 13.5px; font-weight: 700; margin: 6px 0 3px; }
+    .bubble p  { margin: 4px 0; }
+    .bubble ul, .bubble ol { padding-left: 18px; margin: 5px 0; }
+    .bubble li { margin: 2px 0; }
+    .bubble strong { font-weight: 700; }
+    .bubble em { font-style: italic; }
+    .bubble hr { border: none; border-top: 1px solid rgba(255,255,255,.1); margin: 8px 0; }
+    .bubble code { background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+    /* typing dots */
+    .typing-wrap { display: flex; }
+    .typing-bubble {
+      background: var(--navy-light);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px 14px 14px 4px;
+      padding: 12px 16px;
+    }
+    .typing { display: flex; gap: 5px; align-items: center; }
+    .typing span {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--muted);
+      animation: td 1.2s ease-in-out infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: .18s; }
+    .typing span:nth-child(3) { animation-delay: .36s; }
+    @keyframes td { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+    /* cursor blink */
+    .cursor {
+      display: inline-block; width: 2px; height: 14px;
+      background: currentColor; margin-left: 2px; vertical-align: middle;
+      animation: blink .7s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* error bubble */
+    .error-bubble {
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+      border-radius: 12px; padding: 10px 14px;
+      color: #FCA5A5; font-size: 13px;
+    }
+
+    /* ── INPUT AREA ── */
+    .input-area {
+      padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.07);
+      display: flex; gap: 10px; flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; background: var(--navy-light);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; padding: 10px 14px;
+      color: var(--white); font-size: 13.5px; font-family: inherit;
+      outline: none; resize: none; transition: border-color .2s;
+      min-height: 42px; max-height: 120px;
+    }
+    .chat-input:focus { border-color: rgba(255,255,255,.2); }
+    .send-btn {
+      border: none; border-radius: 10px;
+      padding: 10px 18px; font-weight: 700; font-size: 15px;
+      cursor: pointer; color: var(--navy);
+      transition: opacity .15s, transform .1s;
+      flex-shrink: 0; align-self: flex-end;
+    }
+    .send-btn:hover { opacity: .88; }
+    .send-btn:active { transform: scale(.95); }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 12px 16px; }
+      .main { padding: 24px 14px 48px; }
+      .welcome h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo-badge">W</div>
+    <div class="logo-name"><b>WIN</b><span>STARK</span></div>
+    <div class="divider-v"></div>
+    <span class="product-label">Executive AI Cockpit</span>
+  </div>
+  <div class="topbar-right">
+    <div class="date-box" id="dateBox"></div>
+    <div class="avatar">D</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- Welcome -->
+  <div class="welcome">
+    <div class="status-row">
+      <div class="pulse"></div>
+      <span class="status-label">Cockpit ativo · Claude Sonnet 4.6</span>
+    </div>
+    <h1 id="welcomeMsg">Bom dia, Denis.</h1>
+    <p>Seu cockpit executivo está pronto. Escolha uma diretoria ou acione seu agente principal.</p>
+  </div>
+
+  <!-- CEO Card -->
+  <div class="ceo-card" onclick="openModal('ceo')">
+    <div class="ceo-icon-wrap">
+      <!-- Icon: Command Hub — hexagon + center + 3 spokes -->
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L20.39 7V17L12 22L3.61 17V7Z"/>
+        <circle cx="12" cy="12" r="2.2" fill="#C9A227" stroke="none"/>
+        <line x1="12" y1="9.8" x2="12" y2="7"/>
+        <line x1="14" y1="13.1" x2="16.33" y2="14.5"/>
+        <line x1="10" y1="13.1" x2="7.67" y2="14.5"/>
+      </svg>
+    </div>
+    <div class="ceo-info">
+      <div class="ceo-title-row">
+        <span class="ceo-name">Agente Principal</span>
+        <span class="ceo-badge">Personalizado na Imersão</span>
+      </div>
+      <p class="ceo-desc">Centro de comando estratégico. Conhece seu negócio e convoca as diretorias certas no momento certo.</p>
+    </div>
+    <div class="ceo-arrow">→</div>
+  </div>
+
+  <!-- Section label -->
+  <div class="section-divider">
+    <div class="div-line"></div>
+    <span class="div-label">Suas Diretorias</span>
+    <div class="div-line"></div>
+  </div>
+
+  <!-- Grid of 4 diretorias -->
+  <div class="grid">
+
+    <!-- AGENDA -->
+    <div class="dir-card" style="border-color:rgba(78,169,242,.12)" onmouseover="this.style.borderColor='rgba(78,169,242,.35)'" onmouseout="this.style.borderColor='rgba(78,169,242,.12)'">
+      <div class="dir-header">
+        <div class="dir-icon-wrap" style="background:rgba(78,169,242,.1);border:1px solid rgba(78,169,242,.25);color:#4EA9F2">
+          <!-- Icon: Week blocks — 4 vertical bars + top line -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="3" y1="5" x2="21" y2="5"/>
+            <rect x="3" y="9" width="3.5" height="9" rx="1" fill="currentColor" opacity=".35" stroke="none"/>
+            <rect x="8" y="7" width="3.5" height="11" rx="1" stroke="currentColor" fill="none"/>
+            <rect x="13" y="9" width="3.5" height="9" rx="1" fill="currentColor" opacity=".35" stroke="none"/>
+            <rect x="17.5" y="11" width="3.5" height="7" rx="1" stroke="currentColor" fill="none"/>
+          </svg>
+        </div>
+        <div class="dir-title">
+          <div class="dir-name">Agenda</div>
+          <div class="dir-sub" style="color:#4EA9F2">Rotina Executiva</div>
+        </div>
+      </div>
+      <p class="dir-desc">Planejamento semanal, preparação de compromissos e proteção da sua energia executiva.</p>
+      <div class="dir-actions">
+        <button class="action-btn" style="background:rgba(78,169,242,.1);border-color:rgba(78,169,242,.3);color:#4EA9F2" onclick="quickAction('agenda','Preciso planejar minha semana')">Planejar semana</button>
+        <button class="action-btn" style="background:rgba(78,169,242,.1);border-color:rgba(78,169,242,.3);color:#4EA9F2" onclick="quickAction('agenda','Preciso preparar um compromisso importante')">Preparar compromisso</button>
+        <button class="action-btn" style="background:rgba(78,169,242,.1);border-color:rgba(78,169,242,.3);color:#4EA9F2" onclick="quickAction('agenda','Quero revisar as prioridades do meu dia')">Prioridades do dia</button>
+      </div>
+    </div>
+
+    <!-- TAREFAS -->
+    <div class="dir-card" style="border-color:rgba(45,212,191,.12)" onmouseover="this.style.borderColor='rgba(45,212,191,.35)'" onmouseout="this.style.borderColor='rgba(45,212,191,.12)'">
+      <div class="dir-header">
+        <div class="dir-icon-wrap" style="background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.25);color:#2DD4BF">
+          <!-- Icon: Task flow — 3 rows with nodes + check arrows -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="4.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+            <line x1="7" y1="6.5" x2="20" y2="6.5"/>
+            <circle cx="4.5" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            <line x1="7" y1="12" x2="20" y2="12"/>
+            <circle cx="4.5" cy="17.5" r="1.5" stroke="currentColor" fill="none"/>
+            <line x1="7" y1="17.5" x2="14" y2="17.5"/>
+            <polyline points="16,15.5 18.5,17.5 16,19.5"/>
+          </svg>
+        </div>
+        <div class="dir-title">
+          <div class="dir-name">Tarefas</div>
+          <div class="dir-sub" style="color:#2DD4BF">Follow-up</div>
+        </div>
+      </div>
+      <p class="dir-desc">Transforme decisões em ações com dono e prazo. Nenhuma pendência cai entre as rachaduras.</p>
+      <div class="dir-actions">
+        <button class="action-btn" style="background:rgba(45,212,191,.1);border-color:rgba(45,212,191,.3);color:#2DD4BF" onclick="quickAction('tarefas','Quero ver um panorama das minhas pendências abertas')">Ver pendências</button>
+        <button class="action-btn" style="background:rgba(45,212,191,.1);border-color:rgba(45,212,191,.3);color:#2DD4BF" onclick="quickAction('tarefas','Preciso registrar as ações geradas em uma reunião')">Registrar ações</button>
+        <button class="action-btn" style="background:rgba(45,212,191,.1);border-color:rgba(45,212,191,.3);color:#2DD4BF" onclick="quickAction('tarefas','Preciso preparar uma mensagem de cobrança de entrega')">Cobrar entrega</button>
+      </div>
+    </div>
+
+    <!-- INTELIGÊNCIA -->
+    <div class="dir-card" style="border-color:rgba(201,162,39,.12)" onmouseover="this.style.borderColor='rgba(201,162,39,.35)'" onmouseout="this.style.borderColor='rgba(201,162,39,.12)'">
+      <div class="dir-header">
+        <div class="dir-icon-wrap" style="background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.25);color:#C9A227">
+          <!-- Icon: Prism / analytical lens — triangle with scan line -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3L21.5 19.5H2.5Z"/>
+            <line x1="6.5" y1="15" x2="17.5" y2="15"/>
+            <circle cx="9" cy="15" r="1.2" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="15" r="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="dir-title">
+          <div class="dir-name">Inteligência</div>
+          <div class="dir-sub" style="color:#C9A227">Informação & Análise</div>
+        </div>
+      </div>
+      <p class="dir-desc">Filtragem e síntese de documentos, e-mails, relatórios e movimentos de mercado.</p>
+      <div class="dir-actions">
+        <button class="action-btn" style="background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.3);color:#C9A227" onclick="quickAction('inteligencia','Preciso de um resumo executivo de um documento')">Resumir documento</button>
+        <button class="action-btn" style="background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.3);color:#C9A227" onclick="quickAction('inteligencia','Preciso de um briefing sobre um concorrente ou mercado')">Briefing de mercado</button>
+        <button class="action-btn" style="background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.3);color:#C9A227" onclick="quickAction('inteligencia','Preciso analisar uma proposta comercial ou contrato')">Analisar proposta</button>
+      </div>
+    </div>
+
+    <!-- REUNIÕES -->
+    <div class="dir-card" style="border-color:rgba(167,139,250,.12)" onmouseover="this.style.borderColor='rgba(167,139,250,.35)'" onmouseout="this.style.borderColor='rgba(167,139,250,.12)'">
+      <div class="dir-header">
+        <div class="dir-icon-wrap" style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:#A78BFA">
+          <!-- Icon: Convergence — 2 nodes → 1 decision node -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="7" cy="6" r="2.5"/>
+            <circle cx="17" cy="6" r="2.5"/>
+            <line x1="7" y1="8.5" x2="12" y2="16"/>
+            <line x1="17" y1="8.5" x2="12" y2="16"/>
+            <path d="M9 18.5L12 16L15 18.5L12 21Z" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="dir-title">
+          <div class="dir-name">Reuniões</div>
+          <div class="dir-sub" style="color:#A78BFA">Decisões</div>
+        </div>
+      </div>
+      <p class="dir-desc">Preparação de pauta, síntese pós-reunião e registro estruturado de decisões estratégicas.</p>
+      <div class="dir-actions">
+        <button class="action-btn" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#A78BFA" onclick="quickAction('reunioes','Preciso preparar a pauta de uma reunião')">Preparar pauta</button>
+        <button class="action-btn" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#A78BFA" onclick="quickAction('reunioes','Preciso registrar a síntese de uma reunião que acabou')">Síntese pós-reunião</button>
+        <button class="action-btn" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#A78BFA" onclick="quickAction('reunioes','Preciso registrar e documentar uma decisão estratégica')">Registrar decisão</button>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-label">WIN STARK · Executive AI Cockpit · v0.2 · Claude Sonnet 4.6</span>
+    <div class="footer-dots">
+      <div class="fdot" style="background:#4EA9F2"></div>
+      <div class="fdot" style="background:#2DD4BF"></div>
+      <div class="fdot" style="background:#C9A227"></div>
+      <div class="fdot" style="background:#A78BFA"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- API KEY SETUP MODAL -->
+<div class="overlay" id="setupOverlay" style="z-index:200">
+  <div class="modal" style="max-width:480px;height:auto;max-height:none;border:1px solid rgba(201,162,39,.35);box-shadow:0 0 48px rgba(201,162,39,.15)">
+    <div class="modal-header" style="border-bottom-color:rgba(201,162,39,.2)">
+      <div class="m-icon" style="background:rgba(201,162,39,.12);border:1px solid rgba(201,162,39,.35);color:#C9A227">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L20.39 7V17L12 22L3.61 17V7Z"/>
+          <circle cx="12" cy="12" r="2.2" fill="#C9A227" stroke="none"/>
+          <line x1="12" y1="9.8" x2="12" y2="7"/>
+          <line x1="14" y1="13.1" x2="16.33" y2="14.5"/>
+          <line x1="10" y1="13.1" x2="7.67" y2="14.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="m-title">Configurar Cockpit</div>
+        <div class="m-sub">WIN STARK · Primeiro acesso</div>
+      </div>
+    </div>
+    <div style="padding:28px 24px 24px">
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px">
+        Para ativar as diretorias com IA real, insira sua chave da API Anthropic.<br>
+        A chave é salva apenas no seu navegador.
+      </p>
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Chave API Anthropic</label>
+      <input id="apiKeyInput" type="password"
+        placeholder="sk-ant-api03-..."
+        style="width:100%;background:var(--navy-light);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:11px 14px;color:var(--white);font-size:13.5px;font-family:inherit;outline:none;margin-bottom:6px"
+        onkeydown="if(event.key==='Enter')saveKey()"
+      />
+      <p style="font-size:11px;color:rgba(136,150,168,.55);margin-bottom:20px">
+        Obtenha em console.anthropic.com → API Keys
+      </p>
+      <button onclick="saveKey()" style="width:100%;background:#C9A227;border:none;border-radius:10px;padding:12px;color:#0B0F1A;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.02em;font-family:inherit">
+        Ativar Cockpit →
+      </button>
+      <p id="keyError" style="color:#FCA5A5;font-size:12px;margin-top:10px;display:none">Chave inválida. Verifique e tente novamente.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header" id="modalHeader">
+      <div class="m-icon" id="mIcon"></div>
+      <div>
+        <div class="m-title" id="mTitle"></div>
+        <div class="m-sub" id="mSub"></div>
+      </div>
+      <button class="m-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <textarea class="chat-input" id="chatInput" rows="1"
+        placeholder="Escreva sua mensagem..."
+        onkeydown="inputKeydown(event)"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────────────────────
+const API_KEY   = localStorage.getItem('ws_api_key') || '';
+const API_URL   = 'https://api.anthropic.com/v1/messages';
+const MODEL     = 'claude-sonnet-4-6';
+const MAX_TOKENS = 1024;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AGENT DEFINITIONS
+// ─────────────────────────────────────────────────────────────────────────────
+const AGENTS = {
+  ceo: {
+    label: 'Agente Principal',
+    sub:   'Centro de Comando — WIN STARK Cockpit',
+    color: '#C9A227',
+    iconBg: 'rgba(201,162,39,.12)', iconBorder: 'rgba(201,162,39,.35)',
+    hdrBorder: 'rgba(201,162,39,.2)',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2L20.39 7V17L12 22L3.61 17V7Z"/>
+      <circle cx="12" cy="12" r="2.2" fill="#C9A227" stroke="none"/>
+      <line x1="12" y1="9.8" x2="12" y2="7"/>
+      <line x1="14" y1="13.1" x2="16.33" y2="14.5"/>
+      <line x1="10" y1="13.1" x2="7.67" y2="14.5"/>
+    </svg>`,
+    system: `Você é o Agente Principal — Centro de Comando do WIN STARK Cockpit, o sistema de agentes executivos de IA desenvolvido pela WIN.
+
+Seu papel: ser o agente estratégico central do executivo. Você conhece o contexto do negócio, entende a dor prioritária e sabe quando convocar cada diretoria de apoio.
+
+DIRETORIAS DISPONÍVEIS NO COCKPIT:
+- Agenda → organização de tempo, rotina e energia executiva
+- Tarefas → captura de ações e follow-up operacional
+- Inteligência → análise de informação, documentos e mercado
+- Reuniões → preparação e síntese de reuniões e decisões
+
+REGRAS DE RESPOSTA:
+- Português do Brasil, tom estratégico e decisório
+- Máximo 280 palavras por resposta — seja denso, não extenso
+- Use negrito para pontos-chave
+- Quando identificar que uma diretoria específica seria mais útil, diga: "Para isso, a Diretoria de [nome] é mais precisa — quer que eu a acione?"
+- Faça perguntas estratégicas antes de dar recomendações de alto impacto
+- Nunca use linguagem de assistente — use linguagem de liderança e negócio
+- Termine sempre com UMA pergunta ou UMA ação clara`,
+  },
+
+  agenda: {
+    label: 'Agenda',
+    sub:   'Rotina Executiva — WIN STARK Cockpit',
+    color: '#4EA9F2',
+    iconBg: 'rgba(78,169,242,.12)', iconBorder: 'rgba(78,169,242,.3)',
+    hdrBorder: 'rgba(78,169,242,.2)',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <line x1="3" y1="5" x2="21" y2="5"/>
+      <rect x="3" y="9" width="3.5" height="9" rx="1" fill="currentColor" opacity=".4" stroke="none"/>
+      <rect x="8" y="7" width="3.5" height="11" rx="1" stroke="currentColor"/>
+      <rect x="13" y="9" width="3.5" height="9" rx="1" fill="currentColor" opacity=".4" stroke="none"/>
+      <rect x="17.5" y="11" width="3.5" height="7" rx="1" stroke="currentColor"/>
+    </svg>`,
+    system: `Você é a Diretoria de Agenda & Rotina Executiva do WIN STARK Cockpit — sistema de agentes executivos desenvolvido pela WIN.
+
+Seu papel: ajudar o executivo a organizar sua semana com intenção, proteger sua energia e garantir que cada compromisso tenha propósito claro.
+
+REGRAS DE RESPOSTA:
+- Português do Brasil, tom direto — nunca de assistente pessoal
+- Máximo 250 palavras por resposta
+- Use negrito para pontos-chave e resultados esperados
+- Use listas apenas com 3 ou mais itens
+- Termine sempre com UMA pergunta ou UMA ação concreta
+- Nunca use "claro!", "com certeza!" ou validações excessivas
+
+QUANDO O EXECUTIVO PEDIR:
+• Planejamento semanal → pergunte os 3 resultados não negociáveis, compromissos fixos e nível de energia previsto
+• Preparação de compromisso → pergunte objetivo do compromisso e participantes relevantes
+• Revisão do dia → identifique as 2-3 tarefas de maior impacto e o que pode ser eliminado ou delegado
+• Proteção de energia → identifique padrões que drenam e proponha blocos protegidos
+
+INTEGRAÇÃO: Se a solicitação pertencer a outra diretoria, sinalize: "Para isso, a Diretoria de [nome] é mais precisa."`,
+  },
+
+  tarefas: {
+    label: 'Tarefas',
+    sub:   'Follow-up — WIN STARK Cockpit',
+    color: '#2DD4BF',
+    iconBg: 'rgba(45,212,191,.12)', iconBorder: 'rgba(45,212,191,.3)',
+    hdrBorder: 'rgba(45,212,191,.2)',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="4.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+      <line x1="7" y1="6.5" x2="20" y2="6.5"/>
+      <circle cx="4.5" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+      <line x1="7" y1="12" x2="20" y2="12"/>
+      <circle cx="4.5" cy="17.5" r="1.5" stroke="currentColor" fill="none"/>
+      <line x1="7" y1="17.5" x2="14" y2="17.5"/>
+      <polyline points="16,15.5 18.5,17.5 16,19.5"/>
+    </svg>`,
+    system: `Você é a Diretoria de Tarefas & Follow-up do WIN STARK Cockpit — sistema de agentes executivos desenvolvido pela WIN.
+
+Seu papel: garantir que nenhuma decisão morra como intenção. Você transforma o que foi discutido, decidido ou prometido em ações claras com dono e prazo.
+
+REGRAS DE RESPOSTA:
+- Português do Brasil, linguagem de ação — verbos no infinitivo: "Enviar", "Revisar", "Agendar"
+- Máximo 260 palavras
+- Tarefas sempre no formato: **TAREFA** | Dono | Prazo | Prioridade (Alta/Média/Baixa)
+- Sempre pergunte o dono se não estiver claro
+- Sempre pergunte o prazo se não estiver definido
+- Termine com UMA pergunta de desbloqueio ou confirmação
+
+QUANDO O EXECUTIVO PEDIR:
+• Panorama de pendências → categorize: ⚠️ Em Risco / ⏳ Aguardando Retorno / ✅ Suas Entregas / 🗑️ Para Delegar
+• Captura de ações → liste cada ação com dono e prazo, peça o que estiver faltando
+• Follow-up / cobrança → gere a mensagem de cobrança no tom adequado ao contexto (colaborativo, assertivo ou escalada)
+• Desdobramento de decisão → primeiro passo, responsável, prazo, critério de sucesso
+
+INTEGRAÇÃO: Se a solicitação pertencer a outra diretoria, sinalize claramente.`,
+  },
+
+  inteligencia: {
+    label: 'Inteligência',
+    sub:   'Informação & Análise — WIN STARK Cockpit',
+    color: '#C9A227',
+    iconBg: 'rgba(201,162,39,.12)', iconBorder: 'rgba(201,162,39,.3)',
+    hdrBorder: 'rgba(201,162,39,.2)',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3L21.5 19.5H2.5Z"/>
+      <line x1="6.5" y1="15" x2="17.5" y2="15"/>
+      <circle cx="9" cy="15" r="1.2" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="15" r="1.2" fill="currentColor" stroke="none"/>
+    </svg>`,
+    system: `Você é a Diretoria de Informação & Inteligência do WIN STARK Cockpit — sistema de agentes executivos desenvolvido pela WIN.
+
+Seu papel: filtrar ruído, sintetizar informação e entregar ao executivo apenas o que é relevante, no formato certo, na hora certa.
+
+REGRAS DE RESPOSTA:
+- Português do Brasil — primeiro o essencial, depois os detalhes. Nunca o contrário
+- Máximo 300 palavras
+- Estrutura padrão quando analisar algo: **O que importa saber** → **Alertas e riscos** → **Oportunidades** → **O que requer sua decisão**
+- Quando não tiver informação suficiente para análise precisa, diga claramente e peça o contexto necessário
+- Termine sempre indicando a implicação prática para o executivo
+
+QUANDO O EXECUTIVO PEDIR:
+• Resumo executivo → 3-5 pontos que importam, alertas, acionáveis, o que requer decisão
+• Briefing de mercado/concorrente → panorama → atores relevantes → o que não errar → perguntas a fazer
+• Análise de proposta ou contrato → pontos-chave assumidos, cláusulas de atenção, perguntas antes de assinar
+• Triagem de comunicações → classifique por: Resposta sua hoje / Delegar com instrução / Ler depois / Ignorar
+
+INTEGRAÇÃO: Se a solicitação pertencer a outra diretoria, sinalize claramente.`,
+  },
+
+  reunioes: {
+    label: 'Reuniões',
+    sub:   'Decisões — WIN STARK Cockpit',
+    color: '#A78BFA',
+    iconBg: 'rgba(167,139,250,.12)', iconBorder: 'rgba(167,139,250,.3)',
+    hdrBorder: 'rgba(167,139,250,.2)',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7" cy="6" r="2.5"/>
+      <circle cx="17" cy="6" r="2.5"/>
+      <line x1="7" y1="8.5" x2="12" y2="16"/>
+      <line x1="17" y1="8.5" x2="12" y2="16"/>
+      <path d="M9 18.5L12 16L15 18.5L12 21Z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    system: `Você é a Diretoria de Reuniões & Decisões do WIN STARK Cockpit — sistema de agentes executivos desenvolvido pela WIN.
+
+Seu papel: garantir que cada reunião tenha propósito antes, gere resultado durante e deixe rastro útil depois. Você também documenta decisões estratégicas com precisão.
+
+REGRAS DE RESPOSTA:
+- Português do Brasil, estruturado e preciso
+- Máximo 300 palavras
+- Use formatação clara com headers em negrito
+- Confirme sempre quem é o responsável por cada ação ou decisão
+- Termine com confirmação de próximo passo ou responsável
+
+QUANDO O EXECUTIVO PEDIR:
+• Pauta → Objetivo claro + Pergunta-âncora + Itens com tempo estimado + Perguntas estratégicas a fazer/antecipar
+• Síntese pós-reunião → ▶ Decisões tomadas (exatas) / ☐ Ações (dono + prazo) / ⚠️ Riscos / ❓ Em aberto
+• Registro de decisão → O que foi decidido + Por que + Alternativas descartadas + Responsável + Critério de sucesso + Data de revisão
+• Qualidade de decisão → Questione alternativas, premissas assumidas, custo de reversão e urgência real
+
+INTEGRAÇÃO: Se a solicitação pertencer a outra diretoria, sinalize claramente.`,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let currentId   = null;
+let isStreaming  = false;
+const histories = { ceo:{msgs:[]}, agenda:{msgs:[]}, tarefas:{msgs:[]}, inteligencia:{msgs:[]}, reunioes:{msgs:[]} };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// API KEY SETUP
+// ─────────────────────────────────────────────────────────────────────────────
+function saveKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('keyError').style.display = 'block';
+    return;
+  }
+  localStorage.setItem('ws_api_key', val);
+  // reload so API_KEY picks up new value
+  location.reload();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+(function init() {
+  // show setup modal if no key
+  if (!localStorage.getItem('ws_api_key')) {
+    document.getElementById('setupOverlay').classList.add('open');
+    return;
+  }
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  document.getElementById('welcomeMsg').textContent = `${greeting}, Denis.`;
+
+  const now = new Date();
+  const wd  = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+  const dt  = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  document.getElementById('dateBox').innerHTML =
+    `<div style="text-transform:capitalize">${wd}</div><div>${dt}</div>`;
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function openModal(id, initialMsg) {
+  currentId = id;
+  const ag  = AGENTS[id];
+
+  // style header
+  const hdr = document.getElementById('modalHeader');
+  hdr.style.borderBottomColor = ag.hdrBorder;
+
+  const ic = document.getElementById('mIcon');
+  ic.innerHTML = ag.icon;
+  ic.style.background  = ag.iconBg;
+  ic.style.border      = `1px solid ${ag.iconBorder}`;
+  ic.style.color       = ag.color;
+
+  document.getElementById('mTitle').textContent = ag.label;
+  document.getElementById('mSub').textContent   = ag.sub;
+
+  document.getElementById('sendBtn').style.background = ag.color;
+  document.getElementById('modal').style.border       = `1px solid ${ag.color}25`;
+  document.getElementById('modal').style.boxShadow    = `0 0 48px ${ag.color}14`;
+
+  // restore messages
+  const msgsEl = document.getElementById('messages');
+  msgsEl.innerHTML = '';
+  histories[id].msgs.forEach(m => {
+    if (m.role === 'user') appendUserBubble(m.content, ag.color);
+    else appendAgentBubble(m.content, ag.color);
+  });
+
+  // open
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('chatInput').focus();
+
+  // if no history, greet; if initialMsg, send it
+  if (histories[id].msgs.length === 0) {
+    if (initialMsg) {
+      sendToAPI(initialMsg);
+    } else {
+      sendToAPI('Olá, estou iniciando o cockpit. Faça uma breve apresentação de como você pode me ajudar agora.');
+    }
+  } else if (initialMsg) {
+    sendToAPI(initialMsg);
+  }
+}
+
+function closeModal() {
+  if (isStreaming) return;
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// QUICK ACTION (from card buttons)
+// ─────────────────────────────────────────────────────────────────────────────
+function quickAction(agentId, message) {
+  openModal(agentId, message);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEND MESSAGE
+// ─────────────────────────────────────────────────────────────────────────────
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text  = input.value.trim();
+  if (!text || isStreaming) return;
+  input.value = '';
+  autoResize(input);
+  sendToAPI(text);
+}
+
+async function sendToAPI(userText) {
+  if (!currentId || isStreaming) return;
+
+  const ag = AGENTS[currentId];
+  isStreaming = true;
+  setSendDisabled(true);
+
+  // Append user bubble & save to history
+  appendUserBubble(userText, ag.color);
+  histories[currentId].msgs.push({ role: 'user', content: userText });
+
+  // Build messages array (last 12 turns max)
+  const msgHistory = histories[currentId].msgs.slice(-12).map(m => ({
+    role: m.role,
+    content: m.content
+  }));
+
+  // Show typing
+  showTyping();
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        stream: true,
+        system: ag.system,
+        messages: msgHistory,
+      }),
+    });
+
+    if (!resp.ok) {
+      const errBody = await resp.text();
+      throw new Error(`API ${resp.status}: ${errBody}`);
+    }
+
+    removeTyping();
+    const bubble = createStreamBubble(ag.color);
+    let fullText = '';
+
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]' || !data) continue;
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+            fullText += parsed.delta.text;
+            bubble.innerHTML = renderMD(fullText) + '<span class="cursor"></span>';
+            scrollBottom();
+          }
+        } catch (_) {}
+      }
+    }
+
+    // Finalise
+    bubble.innerHTML = renderMD(fullText);
+    scrollBottom();
+    histories[currentId].msgs.push({ role: 'assistant', content: fullText });
+
+  } catch (err) {
+    removeTyping();
+    showError(err.message);
+    // Remove the last user message from history on error
+    histories[currentId].msgs.pop();
+  } finally {
+    isStreaming = false;
+    setSendDisabled(false);
+    document.getElementById('chatInput').focus();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DOM HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function appendUserBubble(text, color) {
+  const msgsEl = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg user';
+  row.innerHTML = `<div class="bubble user" style="background:${color}1A;border:1px solid ${color}30;color:var(--white)">${escHtml(text).replace(/\n/g,'<br>')}</div>`;
+  msgsEl.appendChild(row);
+  scrollBottom();
+}
+
+function appendAgentBubble(html, color) {
+  const msgsEl = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg';
+  row.innerHTML = `<div class="bubble agent">${renderMD(html)}</div>`;
+  msgsEl.appendChild(row);
+  scrollBottom();
+}
+
+function createStreamBubble(color) {
+  const msgsEl = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble agent';
+  row.appendChild(bubble);
+  msgsEl.appendChild(row);
+  scrollBottom();
+  return bubble;
+}
+
+function showTyping() {
+  const msgsEl = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'typing-wrap'; row.id = 'typingRow';
+  row.innerHTML = `<div class="typing-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgsEl.appendChild(row);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingRow');
+  if (t) t.remove();
+}
+
+function showError(msg) {
+  const msgsEl = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg';
+  row.innerHTML = `<div class="error-bubble">Erro ao conectar com a IA: ${escHtml(msg)}</div>`;
+  msgsEl.appendChild(row);
+  scrollBottom();
+}
+
+function setSendDisabled(val) {
+  document.getElementById('sendBtn').disabled = val;
+}
+
+function scrollBottom() {
+  const msgsEl = document.getElementById('messages');
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MARKDOWN RENDERER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderMD(text) {
+  if (!text) return '';
+  let t = escHtml(text);
+
+  // Headers
+  t = t.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+  t = t.replace(/^## (.+)$/gm,  '<h3>$1</h3>');
+  t = t.replace(/^# (.+)$/gm,   '<h3>$1</h3>');
+
+  // Bold & italic
+  t = t.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  t = t.replace(/\*\*(.+?)\*\*/g,     '<strong>$1</strong>');
+  t = t.replace(/\*(.+?)\*/g,         '<em>$1</em>');
+
+  // Inline code
+  t = t.replace(/`(.+?)`/g, '<code>$1</code>');
+
+  // HR
+  t = t.replace(/^---$/gm, '<hr>');
+
+  // Lists
+  t = t.replace(/^[-•▶☐⚠️⏳✅🗑️❓] (.+)$/gm, '<li>$1</li>');
+  t = t.replace(/^\d+\. (.+)$/gm,              '<li>$1</li>');
+  t = t.replace(/(<li>[\s\S]*?<\/li>)(\n(?!<li>)|$)/g, (m, g1) => `<ul>${g1}</ul>`);
+
+  // Paragraphs
+  const parts = t.split(/\n\n+/);
+  t = parts.map(p => {
+    p = p.trim();
+    if (!p) return '';
+    if (/^<(h[1-6]|ul|ol|hr|li)/.test(p)) return p;
+    p = p.replace(/\n/g, '<br>');
+    return `<p>${p}</p>`;
+  }).join('');
+
+  return t;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUT HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function inputKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function escHtml(t) {
+  return String(t)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
