@@ -222,7 +222,78 @@
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
+    transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+                width 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
+
+  /* Collapsed on desktop: slide left, zero width */
+  .layout.sidebar-collapsed .sidebar {
+    width: 0;
+    transform: translateX(-100%);
+    overflow: hidden;
+    border-right: none;
+  }
+
+  /* Mobile: sidebar floats over content */
+  @media (max-width: 680px) {
+    .sidebar {
+      position: fixed;
+      top: var(--header-h);
+      bottom: 0;
+      left: 0;
+      z-index: 90;
+      transform: translateX(-100%);
+      width: 272px;
+      border-right: 1px solid var(--border);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .layout.sidebar-open .sidebar {
+      transform: translateX(0);
+    }
+
+    /* On mobile the default is collapsed, so we never apply the desktop rule */
+    .layout.sidebar-collapsed .sidebar {
+      width: 272px;
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Overlay behind sidebar on mobile */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: var(--header-h);
+    background: var(--bg-overlay);
+    backdrop-filter: blur(2px);
+    z-index: 89;
+  }
+
+  @media (max-width: 680px) {
+    .layout.sidebar-open .sidebar-overlay {
+      display: block;
+    }
+  }
+
+  /* Menu toggle button in header */
+  .btn-menu {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .btn-menu:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-menu svg { width: 15px; height: 15px; stroke: currentColor; }
 
   .sidebar-section { padding: 1.25rem; }
 
@@ -793,6 +864,13 @@
 
 <!-- HEADER -->
 <header class="header">
+  <button class="btn-menu" id="btnMenu" onclick="toggleSidebar()" title="Alternar menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
   <div class="header-logo">
     <span class="header-logo-w">W</span>
     <span class="header-logo-name">Win Stark</span>
@@ -815,7 +893,9 @@
 </header>
 
 <!-- LAYOUT -->
-<div class="layout">
+<div class="layout" id="layout">
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -936,6 +1016,42 @@
     });
   });
 })();
+
+// ===== SIDEBAR TOGGLE =====
+const isMobile = () => window.innerWidth <= 680;
+
+function toggleSidebar() {
+  const layout = document.getElementById('layout');
+  if (isMobile()) {
+    layout.classList.toggle('sidebar-open');
+  } else {
+    layout.classList.toggle('sidebar-collapsed');
+    try { localStorage.setItem('ws_sidebar', layout.classList.contains('sidebar-collapsed') ? '0' : '1'); } catch(e) {}
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('layout').classList.remove('sidebar-open');
+}
+
+function initSidebar() {
+  const layout = document.getElementById('layout');
+  if (isMobile()) {
+    // Mobile: always start closed (overlay mode)
+    layout.classList.remove('sidebar-open');
+  } else {
+    // Desktop: restore last preference (default open)
+    const pref = localStorage.getItem('ws_sidebar');
+    if (pref === '0') layout.classList.add('sidebar-collapsed');
+  }
+}
+
+window.addEventListener('resize', () => {
+  const layout = document.getElementById('layout');
+  if (!isMobile()) {
+    layout.classList.remove('sidebar-open');
+  }
+});
 
 // ===== CONFIG =====
 const AGENTS = {
@@ -1164,6 +1280,9 @@ async function init() {
   }
 
   document.getElementById('userName').textContent = currentUser.name;
+
+  // Init sidebar state
+  initSidebar();
 
   // Load AP status
   await loadAPStatus();
