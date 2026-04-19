@@ -393,6 +393,25 @@
   .alert.visible { display: block; }
   .alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #FC8181; }
   .alert-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    z-index: 50;
+  }
 </style>
 <script>(function(){var t=localStorage.getItem('ws_theme')||'light';document.documentElement.setAttribute('data-theme',t);})()</script>
 </head>
@@ -668,5 +687,10 @@
 
   loadCEOs();
 </script>
+
+<footer class="footer">
+  &copy; WIN Business School &nbsp;&mdash;&nbsp; WIN STARK PROJECT &nbsp;&mdash;&nbsp; Todos os direitos reservados
+</footer>
+
 </body>
 </html>
