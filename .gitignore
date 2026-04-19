@@ -1,0 +1,5 @@
+node_modules/
+stark.db
+.env
+uploads/*.md
+*.log

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIN STARK — Executive AI Cockpit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #080C10;
+    --dark: #0D1117;
+    --card: #111923;
+    --border: #1E2D3D;
+    --blue: #1A56DB;
+    --blue-hover: #1E63F5;
+    --blue-light: #3B82F6;
+    --blue-glow: rgba(26, 86, 219, 0.25);
+    --white: #F0F4F8;
+    --muted: #6B8099;
+    --text: #C9D6E3;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Barlow', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(26,86,219,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 100% 100%, rgba(26,86,219,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* HUD grid lines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(26,86,219,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,86,219,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .login-container {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  /* WIN STARK Logo */
+  .logo-block {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .logo-win {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 4rem;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .logo-win span {
+    color: var(--blue);
+  }
+
+  .logo-stark {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 4rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .logo-separator {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--blue);
+    border-radius: 50%;
+    margin: 0 0.1em;
+    vertical-align: middle;
+    position: relative;
+    top: -0.15em;
+  }
+
+  .logo-tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    color: var(--blue-light);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+  }
+
+  .logo-sub {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    margin-top: 0.6rem;
+    text-transform: uppercase;
+  }
+
+  /* Login card */
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--blue);
+    padding: 2.5rem;
+    position: relative;
+  }
+
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue-light), transparent);
+  }
+
+  .login-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .field {
+    margin-bottom: 1.25rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-glow);
+  }
+
+  .field input::placeholder {
+    color: var(--muted);
+  }
+
+  .btn-login {
+    width: 100%;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.875rem;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-login:hover {
+    background: var(--blue-hover);
+    box-shadow: 0 0 20px var(--blue-glow);
+  }
+
+  .btn-login:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .error-msg {
+    background: rgba(220, 50, 50, 0.12);
+    border: 1px solid rgba(220, 50, 50, 0.3);
+    color: #FC8181;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  .footer-text {
+    text-align: center;
+    margin-top: 2.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Corner decorations */
+  .corner {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    opacity: 0.3;
+  }
+  .corner-tl { top: 20px; left: 20px; border-top: 1px solid var(--blue); border-left: 1px solid var(--blue); }
+  .corner-tr { top: 20px; right: 20px; border-top: 1px solid var(--blue); border-right: 1px solid var(--blue); }
+  .corner-bl { bottom: 20px; left: 20px; border-bottom: 1px solid var(--blue); border-left: 1px solid var(--blue); }
+  .corner-br { bottom: 20px; right: 20px; border-bottom: 1px solid var(--blue); border-right: 1px solid var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="login-container">
+  <div class="logo-block">
+    <div>
+      <span class="logo-win">Wi<span>N</span></span><span class="logo-separator"></span><span class="logo-stark">STARK</span>
+    </div>
+    <div class="logo-sub">Business</div>
+    <div class="logo-tagline">Executive AI Cockpit</div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-title">Acesso ao Sistema</div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="seu@email.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="password" placeholder="Sua senha" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-login" id="btnLogin">Acessar Cockpit</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <div class="footer-text">WIN Business. Network. Education. &mdash; We Inspire Next</div>
+</div>
+
+<script>
+  // Redirect if already logged in
+  const token = localStorage.getItem('ws_token');
+  if (token) {
+    const user = JSON.parse(localStorage.getItem('ws_user') || '{}');
+    window.location.href = user.role === 'admin' ? '/admin.html' : '/';
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const err = document.getElementById('errorMsg');
+    err.classList.remove('visible');
+    btn.disabled = true;
+    btn.textContent = 'Autenticando...';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        err.textContent = data.error || 'Erro ao autenticar';
+        err.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Acessar Cockpit';
+        return;
+      }
+
+      localStorage.setItem('ws_token', data.token);
+      localStorage.setItem('ws_user', JSON.stringify(data.user));
+
+      window.location.href = data.user.role === 'admin' ? '/admin.html' : '/';
+    } catch (ex) {
+      err.textContent = 'Erro de conexao. Tente novamente.';
+      err.classList.add('visible');
+      btn.disabled = false;
+      btn.textContent = 'Acessar Cockpit';
+    }
+  });
+</script>
+</body>
+</html>

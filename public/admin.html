@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIN STARK — Painel Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #080C10;
+    --dark: #0D1117;
+    --card: #111923;
+    --card2: #0F1622;
+    --border: #1E2D3D;
+    --blue: #1A56DB;
+    --blue-hover: #1E63F5;
+    --blue-light: #3B82F6;
+    --blue-glow: rgba(26, 86, 219, 0.2);
+    --green: #22C55E;
+    --red: #EF4444;
+    --white: #F0F4F8;
+    --muted: #6B8099;
+    --text: #C9D6E3;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Barlow', sans-serif;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(26,86,219,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,12,16,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+  }
+
+  .header-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .header-logo span { color: var(--blue); }
+
+  .header-badge {
+    background: var(--blue);
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 2px 8px;
+    text-transform: uppercase;
+    margin-left: 0.5rem;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .admin-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+  /* MAIN */
+  .main {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--blue);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .stat-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: var(--blue-light);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+
+  /* Add CEO form */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .add-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+
+  .add-form .field { flex: 1; margin: 0; }
+
+  .field label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.65rem 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus { border-color: var(--blue); }
+
+  .btn-primary {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.5rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    height: 40px;
+  }
+
+  .btn-primary:hover { background: var(--blue-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Password reveal modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.visible { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--blue);
+    padding: 2rem;
+    max-width: 460px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-sub {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .password-box {
+    background: var(--dark);
+    border: 1px solid var(--blue);
+    padding: 1rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--blue-light);
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    user-select: all;
+    transition: background 0.2s;
+  }
+
+  .password-box:hover { background: rgba(26,86,219,0.1); }
+
+  .modal-warn {
+    font-size: 0.75rem;
+    color: #FC8181;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* CEO table */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+  }
+
+  td {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(26,86,219,0.04); }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+  }
+
+  .badge-green { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-gray { background: rgba(107,128,153,0.12); color: var(--muted); border: 1px solid rgba(107,128,153,0.2); }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  .action-btn:hover { border-color: var(--blue-light); color: var(--blue-light); }
+  .action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .alert {
+    padding: 0.875rem 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .alert.visible { display: block; }
+  .alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #FC8181; }
+  .alert-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div>
+    <span class="header-logo">Wi<span>N</span>.STARK</span>
+    <span class="header-badge">Admin</span>
+  </div>
+  <div class="header-right">
+    <span class="admin-label" id="adminName">Administrador</span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</header>
+
+<main class="main">
+  <h1 class="page-title">Painel de Gestao</h1>
+  <p class="page-sub">Gerencie os CEOs cadastrados na imersao WIN STARK Business</p>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">CEOs Cadastrados</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statAP">0</div>
+      <div class="stat-label">Agente Principal Ativo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statVagas">10</div>
+      <div class="stat-label">Vagas Disponiveis</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Cadastrar Novo CEO</div>
+  </div>
+
+  <div class="add-form">
+    <div class="field">
+      <label>Nome Completo</label>
+      <input type="text" id="newName" placeholder="Nome do executivo">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="newEmail" placeholder="email@empresa.com">
+    </div>
+    <button class="btn-primary" id="btnAdd" onclick="addCEO()">Cadastrar</button>
+  </div>
+
+  <div class="alert alert-error" id="alertError"></div>
+  <div class="alert alert-success" id="alertSuccess"></div>
+
+  <div class="section-header">
+    <div class="section-title">CEOs Cadastrados</div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Agente Principal</th>
+          <th>Cadastrado em</th>
+          <th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody id="ceoTable">
+        <tr><td colspan="5" class="empty-state">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Password Modal -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal">
+    <div class="modal-title">CEO Cadastrado</div>
+    <div class="modal-sub">Copie a senha gerada e envie ao executivo. Ela nao sera exibida novamente.</div>
+    <div class="password-box" id="modalPassword" onclick="copyPassword()" title="Clique para copiar"></div>
+    <div class="modal-warn">Esta senha e exibida apenas uma vez. Nao feche esta janela sem copiar.</div>
+    <button class="btn-primary" onclick="closeModal()" style="width:100%">Copiei — Fechar</button>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('ws_token');
+  const user = JSON.parse(localStorage.getItem('ws_user') || '{}');
+
+  if (!token || user.role !== 'admin') {
+    window.location.href = '/login.html';
+  }
+
+  document.getElementById('adminName').textContent = user.name || 'Admin';
+
+  function logout() {
+    localStorage.removeItem('ws_token');
+    localStorage.removeItem('ws_user');
+    window.location.href = '/login.html';
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
+
+  function showAlert(type, msg) {
+    const el = document.getElementById(type === 'error' ? 'alertError' : 'alertSuccess');
+    const other = document.getElementById(type === 'error' ? 'alertSuccess' : 'alertError');
+    other.classList.remove('visible');
+    el.textContent = msg;
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 5000);
+  }
+
+  function formatDate(str) {
+    const d = new Date(str);
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  async function loadCEOs() {
+    try {
+      const res = await fetch('/api/admin/users', { headers: authHeaders() });
+      const ceos = await res.json();
+
+      const totalEl = document.getElementById('statTotal');
+      const apEl = document.getElementById('statAP');
+      const vagasEl = document.getElementById('statVagas');
+
+      totalEl.textContent = ceos.length;
+      apEl.textContent = ceos.filter(c => c.has_ap).length;
+      vagasEl.textContent = Math.max(0, 10 - ceos.length);
+
+      const tbody = document.getElementById('ceoTable');
+      if (ceos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Nenhum CEO cadastrado ainda. Adicione o primeiro acima.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = ceos.map(c => `
+        <tr>
+          <td><strong>${c.name}</strong></td>
+          <td>${c.email}</td>
+          <td>
+            ${c.has_ap
+              ? `<span class="badge badge-green">${c.ap_skill_name || 'Ativo'}</span>`
+              : `<span class="badge badge-gray">Pendente</span>`}
+          </td>
+          <td>${formatDate(c.created_at)}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="action-btn" onclick="resetPassword(${c.id}, '${c.name}')">Reset senha</button>
+            <button class="action-btn danger" onclick="removeCEO(${c.id}, '${c.name}')">Remover</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function addCEO() {
+    const name = document.getElementById('newName').value.trim();
+    const email = document.getElementById('newEmail').value.trim();
+    if (!name || !email) { showAlert('error', 'Preencha nome e email'); return; }
+
+    const btn = document.getElementById('btnAdd');
+    btn.disabled = true;
+    btn.textContent = 'Cadastrando...';
+
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ name, email })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showAlert('error', data.error || 'Erro ao cadastrar');
+      } else {
+        document.getElementById('newName').value = '';
+        document.getElementById('newEmail').value = '';
+        document.getElementById('modalPassword').textContent = data.password;
+        document.getElementById('passwordModal').classList.add('visible');
+        await loadCEOs();
+      }
+    } catch (e) {
+      showAlert('error', 'Erro de conexao');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Cadastrar';
+  }
+
+  async function resetPassword(id, name) {
+    if (!confirm(`Resetar a senha de ${name}?`)) return;
+
+    const res = await fetch(`/api/admin/users/${id}/reset-password`, {
+      method: 'POST', headers: authHeaders()
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      document.getElementById('modalPassword').textContent = data.password;
+      document.getElementById('passwordModal').classList.add('visible');
+    } else {
+      showAlert('error', data.error || 'Erro ao resetar');
+    }
+  }
+
+  async function removeCEO(id, name) {
+    if (!confirm(`Remover o CEO ${name}? Esta acao nao pode ser desfeita.`)) return;
+
+    const res = await fetch(`/api/admin/users/${id}`, {
+      method: 'DELETE', headers: authHeaders()
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      showAlert('success', `${name} removido com sucesso`);
+      await loadCEOs();
+    } else {
+      showAlert('error', data.error || 'Erro ao remover');
+    }
+  }
+
+  function copyPassword() {
+    const pwd = document.getElementById('modalPassword').textContent;
+    navigator.clipboard.writeText(pwd).then(() => {
+      document.getElementById('modalPassword').style.background = 'rgba(34,197,94,0.1)';
+      setTimeout(() => {
+        document.getElementById('modalPassword').style.background = '';
+      }, 800);
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('passwordModal').classList.remove('visible');
+  }
+
+  loadCEOs();
+</script>
+</body>
+</html>

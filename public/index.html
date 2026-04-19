@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIN STARK — Executive AI Cockpit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #080C10;
+    --dark: #0D1117;
+    --card: #111923;
+    --card2: #0F1622;
+    --border: #1E2D3D;
+    --blue: #1A56DB;
+    --blue-hover: #1E63F5;
+    --blue-light: #3B82F6;
+    --blue-dim: rgba(26,86,219,0.15);
+    --blue-glow: rgba(26,86,219,0.25);
+    --white: #F0F4F8;
+    --muted: #6B8099;
+    --text: #C9D6E3;
+    --green: #22C55E;
+    --red: #EF4444;
+    --header-h: 60px;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Barlow', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(26,86,219,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === HEADER === */
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    height: var(--header-h);
+    background: rgba(8,12,16,0.97);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 1rem;
+  }
+
+  .header-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  .header-logo span { color: var(--blue); }
+
+  .header-badge {
+    background: var(--blue);
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 2px 7px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Agent tabs in header */
+  .agent-tabs {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .agent-tabs::-webkit-scrollbar { display: none; }
+
+  .agent-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1rem;
+    height: var(--header-h);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    user-select: none;
+  }
+
+  .agent-tab:hover { color: var(--text); }
+
+  .agent-tab.active {
+    color: var(--white);
+    border-bottom-color: var(--blue);
+  }
+
+  .agent-tab .tab-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .agent-tab.active .tab-icon { opacity: 1; stroke: var(--blue-light); }
+
+  .agent-tab.ap-tab { border-right: 1px solid var(--border); }
+  .agent-tab.ap-tab.active { color: var(--blue-light); }
+
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 0.8rem;
+    color: var(--muted);
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+  /* === LAYOUT === */
+  .layout {
+    position: fixed;
+    top: var(--header-h);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    z-index: 1;
+  }
+
+  /* === SIDEBAR === */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--card2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    padding: 1.25rem 1.25rem 0.5rem;
+  }
+
+  .sidebar-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* AP Status */
+  .ap-status {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .ap-status.active {
+    border-color: rgba(26,86,219,0.4);
+    background: rgba(26,86,219,0.06);
+  }
+
+  .ap-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--blue-light);
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ap-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* Upload area */
+  .upload-area {
+    border: 1px dashed var(--border);
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    width: 100%;
+    color: var(--muted);
+  }
+
+  .upload-area:hover {
+    border-color: var(--blue);
+    background: var(--blue-dim);
+    color: var(--blue-light);
+  }
+
+  .upload-area svg { margin: 0 auto 0.5rem; display: block; opacity: 0.5; }
+  .upload-area:hover svg { opacity: 1; }
+
+  .upload-text {
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .upload-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+  }
+
+  .btn-sm {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .btn-sm:hover { border-color: var(--red); color: var(--red); }
+
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.75rem 0;
+  }
+
+  /* Conversation list */
+  .conv-list {
+    flex: 1;
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .conv-item {
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--text);
+    border-radius: 0;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .conv-item:hover { background: rgba(26,86,219,0.07); border-left-color: var(--blue-light); }
+  .conv-item.active { background: rgba(26,86,219,0.1); border-left-color: var(--blue); color: var(--white); }
+
+  .conv-item-agent {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .conv-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-new-conv {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-new-conv:hover { border-color: var(--blue-light); color: var(--blue-light); }
+
+  /* === MAIN CONTENT === */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Agent info bar */
+  .agent-bar {
+    padding: 0.875rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,12,16,0.5);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  .agent-icon-wrap {
+    width: 36px;
+    height: 36px;
+    background: rgba(26,86,219,0.12);
+    border: 1px solid rgba(26,86,219,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .agent-icon-wrap svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--blue-light);
+  }
+
+  .agent-info-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .agent-info-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .agent-bar-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* === MESSAGES === */
+  .messages-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .messages-wrap::-webkit-scrollbar { width: 4px; }
+  .messages-wrap::-webkit-scrollbar-track { background: transparent; }
+  .messages-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* Welcome state */
+  .welcome-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .welcome-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(26,86,219,0.1);
+    border: 1px solid rgba(26,86,219,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+
+  .welcome-icon svg { width: 30px; height: 30px; stroke: var(--blue-light); }
+
+  .welcome-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .welcome-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    max-width: 380px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .suggestion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    max-width: 520px;
+    width: 100%;
+  }
+
+  .suggestion {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--text);
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+
+  .suggestion:hover {
+    border-color: var(--blue);
+    background: var(--blue-dim);
+    color: var(--white);
+  }
+
+  .suggestion-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Messages */
+  .msg {
+    display: flex;
+    gap: 0.875rem;
+    max-width: 800px;
+  }
+
+  .msg.user { flex-direction: row-reverse; margin-left: auto; }
+
+  .msg-avatar {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+
+  .msg.assistant .msg-avatar {
+    background: rgba(26,86,219,0.15);
+    border: 1px solid rgba(26,86,219,0.3);
+    color: var(--blue-light);
+  }
+
+  .msg.user .msg-avatar {
+    background: rgba(107,128,153,0.15);
+    border: 1px solid rgba(107,128,153,0.2);
+    color: var(--muted);
+  }
+
+  .msg-body {
+    flex: 1;
+  }
+
+  .msg-sender {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+
+  .msg.user .msg-sender { text-align: right; }
+
+  .msg-bubble {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .msg.user .msg-bubble {
+    background: rgba(26,86,219,0.1);
+    border-color: rgba(26,86,219,0.2);
+    color: var(--white);
+  }
+
+  /* Markdown styles inside bubble */
+  .msg-bubble h1,.msg-bubble h2,.msg-bubble h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin: 0.75rem 0 0.35rem;
+  }
+
+  .msg-bubble h1 { font-size: 1.15rem; }
+  .msg-bubble h2 { font-size: 1rem; }
+  .msg-bubble h3 { font-size: 0.9rem; }
+
+  .msg-bubble p { margin-bottom: 0.65rem; }
+  .msg-bubble p:last-child { margin-bottom: 0; }
+
+  .msg-bubble ul,.msg-bubble ol {
+    padding-left: 1.5rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .msg-bubble li { margin-bottom: 0.25rem; }
+
+  .msg-bubble strong { color: var(--white); font-weight: 600; }
+
+  .msg-bubble code {
+    background: rgba(26,86,219,0.1);
+    border: 1px solid rgba(26,86,219,0.2);
+    padding: 1px 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+    color: var(--blue-light);
+  }
+
+  .msg-bubble pre {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    padding: 0.875rem;
+    overflow-x: auto;
+    margin: 0.65rem 0;
+  }
+
+  .msg-bubble pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text);
+  }
+
+  .msg-bubble blockquote {
+    border-left: 3px solid var(--blue);
+    padding-left: 1rem;
+    color: var(--muted);
+    margin: 0.5rem 0;
+  }
+
+  .msg-bubble hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1rem 0;
+  }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 0.75rem 0;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--blue-light);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* === INPUT === */
+  .input-area {
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    background: rgba(8,12,16,0.6);
+    flex-shrink: 0;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.2s;
+  }
+
+  .input-row:focus-within { border-color: var(--blue); }
+
+  .input-row textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    color: var(--white);
+    resize: none;
+    line-height: 1.5;
+    min-height: 24px;
+    max-height: 160px;
+  }
+
+  .input-row textarea::placeholder { color: var(--muted); }
+
+  .btn-send {
+    background: var(--blue);
+    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .btn-send:hover { background: var(--blue-hover); }
+  .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-send svg { stroke: white; width: 16px; height: 16px; }
+
+  .input-hint {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    text-align: right;
+  }
+
+  /* === AP LOCK === */
+  .ap-lock {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+  }
+
+  .ap-lock-icon {
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+
+  .ap-lock-icon svg { width: 28px; height: 28px; stroke: var(--muted); }
+
+  .ap-lock-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .ap-lock-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    max-width: 360px;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Upload modal for AP on main area */
+  .upload-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .btn-upload-cta {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.75rem 2rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-upload-cta:hover { background: var(--blue-hover); }
+
+  /* Notification toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    padding: 0.875rem 1.25rem;
+    font-size: 0.85rem;
+    color: var(--white);
+    z-index: 999;
+    transform: translateX(120%);
+    transition: transform 0.3s;
+    max-width: 320px;
+  }
+
+  .toast.visible { transform: translateX(0); }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">Wi<span>N</span>.STARK</div>
+  <div class="header-badge">Business</div>
+  <div class="header-divider"></div>
+
+  <nav class="agent-tabs" id="agentTabs">
+    <!-- Tabs injected by JS -->
+  </nav>
+
+  <div class="header-user">
+    <span class="user-name" id="userName"></span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Agente Principal</div>
+      <div class="ap-status" id="apStatus">
+        <div class="ap-name" id="apStatusName">Nao configurado</div>
+        <div class="ap-desc" id="apStatusDesc">Faca upload do seu skill.md para ativar</div>
+      </div>
+
+      <button class="upload-area" id="uploadArea" onclick="triggerUpload()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <div class="upload-text">Upload skill.md</div>
+        <div class="upload-hint">Arquivo gerado na sessao de design do AP</div>
+      </button>
+      <input type="file" id="fileInput" accept=".md,text/markdown,text/plain" style="display:none" onchange="handleUpload(event)">
+
+      <button class="btn-sm" id="btnRemoveAP" style="display:none" onclick="removeAP()">Remover Agente Principal</button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="conv-list">
+      <div class="sidebar-label">Conversas</div>
+      <button class="btn-new-conv" onclick="newConversation()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nova conversa
+      </button>
+      <div id="convList"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <section class="content">
+    <!-- Agent bar -->
+    <div class="agent-bar" id="agentBar">
+      <div class="agent-icon-wrap" id="agentBarIcon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+      </div>
+      <div>
+        <div class="agent-info-name" id="agentBarName">Selecione uma diretoria</div>
+        <div class="agent-info-desc" id="agentBarDesc">Clique em uma aba acima para comecar</div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-wrap" id="messagesWrap">
+      <div class="welcome-state" id="welcomeState">
+        <div class="welcome-icon" id="welcomeIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="welcome-title" id="welcomeTitle">Executive AI Cockpit</div>
+        <div class="welcome-desc" id="welcomeDesc">Selecione uma das diretorias no menu acima para comecar a interagir com seu assistente de inteligencia executiva.</div>
+        <div class="suggestion-grid" id="suggestionGrid" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="inputMsg" placeholder="Digite sua mensagem..." rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"></textarea>
+        <button class="btn-send" id="btnSend" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">Enter para enviar &middot; Shift+Enter para nova linha</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== CONFIG =====
+const AGENTS = {
+  agenda: {
+    id: 'agenda',
+    name: 'Agenda Executiva',
+    shortName: 'Agenda',
+    desc: 'Organiza prioridades e antecipa contexto de compromissos',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+      <path d="M9 16l2 2 4-4"/>
+    </svg>`,
+    system: `Voce e a Diretoria de Agenda Executiva do cockpit WIN STARK. Seu papel e ajudar o executivo a organizar sua semana com clareza e intencao estrategica.
+
+Suas competencias:
+- Planejar a semana executiva, identificando prioridades criticas vs. operacionais
+- Preparar briefings para compromissos importantes (contexto, objetivos, riscos, perguntas-chave)
+- Proteger o tempo de alto impacto do executivo
+- Identificar reunioes que podem ser canceladas, delegadas ou encurtadas
+- Transformar uma lista de compromissos em um plano com energia e foco
+
+Tom: direto, estrategico, sem enrolacao. Voce fala como um chief of staff de elite que conhece cada detalhe da agenda do CEO.
+
+Ao receber compromissos ou uma descricao da semana, estruture a resposta com: (1) Mapa da semana, (2) Top 3 prioridades, (3) Alertas de atencao, (4) Sugestoes de movimento.`,
+    suggestions: [
+      { label: 'Planejar semana', text: 'Preciso planejar minha semana. Tenho os seguintes compromissos:' },
+      { label: 'Briefing de reuniao', text: 'Prepare um briefing para minha reuniao de amanha com:' },
+      { label: 'Proteger energia', text: 'Minha agenda esta assim. O que posso cortar ou delegar?' },
+      { label: 'Prioridade maxima', text: 'Quais devem ser minhas 3 prioridades absoluta esta semana?' }
+    ]
+  },
+  tarefas: {
+    id: 'tarefas',
+    name: 'Tarefas & Follow-up',
+    shortName: 'Tarefas',
+    desc: 'Transforma decisoes em acoes com dono e prazo',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M9 11l3 3L22 4"/>
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>`,
+    system: `Voce e a Diretoria de Tarefas e Follow-up do cockpit WIN STARK. Seu trabalho e transformar conversas, reunioes e decisoes em acao real.
+
+Suas competencias:
+- Capturar tarefas a partir de descricoes de reunioes, e-mails ou contextos
+- Estruturar cada tarefa com: o que, quem, quando, criterio de conclusao
+- Identificar gargalos e tarefas travadas
+- Criar listas de follow-up para equipes
+- Transformar decisoes abstratas em checklists executaveis
+- Priorizar backlog executivo com criterio
+
+Tom: preciso, curto, orientado a entrega. Cada resposta deve ter acao clara. Nunca deixe vago o que pode ser especifico.
+
+Formato padrao para tarefas:
+**[TAREFA]** Descricao clara
+- Responsavel: nome
+- Prazo: data
+- Criterio: como sabemos que esta pronto`,
+    suggestions: [
+      { label: 'Capturar de reuniao', text: 'Tive uma reuniao e saiu o seguinte:' },
+      { label: 'Organizar backlog', text: 'Tenho as seguintes pendencias acumuladas. Me ajude a organizar:' },
+      { label: 'Follow-up de equipe', text: 'Preciso montar um follow-up das tarefas delegadas a minha equipe esta semana.' },
+      { label: 'Decisao em acao', text: 'Decidimos isto hoje. Transforme em tarefas:' }
+    ]
+  },
+  inteligencia: {
+    id: 'inteligencia',
+    name: 'Informacao & Inteligencia',
+    shortName: 'Inteligencia',
+    desc: 'Filtra o excesso e entrega o que importa',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    </svg>`,
+    system: `Voce e a Diretoria de Informacao e Inteligencia do cockpit WIN STARK. Voce e o filtro inteligente do executivo.
+
+Suas competencias:
+- Sintetizar documentos, relatorios, e-mails e artigos em insights acionaveis
+- Identificar o que realmente importa em um volume de informacao
+- Transformar dados brutos em perspectivas estrategicas
+- Preparar resumos executivos (3-5 pontos maximos, sem ruido)
+- Analisar propostas, contratos e documentos com visao critica
+- Gerar perguntas inteligentes a partir de qualquer leitura
+
+Tom: analista senior que respeita o tempo do CEO. Vai direto ao ponto, elimina redundancias, destaca riscos e oportunidades escondidas.
+
+Formato padrao para sinteses:
+**ESSENCIA:** uma frase com o que mais importa
+**PONTOS-CHAVE:** 3-5 bullets concisos
+**ALERTA:** riscos ou inconsistencias
+**PROXIMA ACAO:** o que o executivo deve fazer com isso`,
+    suggestions: [
+      { label: 'Resumir documento', text: 'Resuma o seguinte documento de forma executiva:' },
+      { label: 'Filtrar e-mails', text: 'Tenho os seguintes e-mails. Qual requer minha atencao urgente?' },
+      { label: 'Analisar proposta', text: 'Analise esta proposta comercial com olhar critico:' },
+      { label: 'Preparar leitura', text: 'Vou ler sobre este tema. O que devo saber antes?' }
+    ]
+  },
+  reunioes: {
+    id: 'reunioes',
+    name: 'Reunioes & Decisoes',
+    shortName: 'Reunioes',
+    desc: 'Prepara pauta, sintetiza e documenta decisoes',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>`,
+    system: `Voce e a Diretoria de Reunioes e Decisoes do cockpit WIN STARK. Voce transforma reunioes em resultados reais.
+
+Suas competencias:
+- Construir pautas eficientes com tempo, objetivo e dono por topico
+- Preparar o executivo para qualquer tipo de reuniao (pitch, negociacao, feedback, planejamento)
+- Sintetizar o que aconteceu em uma reuniao em formato de registro executivo
+- Documentar decisoes tomadas com contexto, alternativas descartadas e razao da escolha
+- Identificar quando uma reuniao nao deveria acontecer
+- Transformar uma reuniao de 1h de descricao em um registro de 5 linhas
+
+Tom: facilitador estrategico de alto nivel. Valoriza clareza acima de tudo. Toda reuniao precisa ter: objetivo, dono, prazo, decisao.
+
+Formato para registro de reuniao:
+**REUNIAO:** nome e data
+**OBJETIVO ATINGIDO:** sim/parcial/nao
+**DECISOES:** lista objetiva
+**PROXIMAS ACOES:** com responsavel e prazo
+**PENDENCIAS ABERTAS:** o que ficou sem resolucao`,
+    suggestions: [
+      { label: 'Montar pauta', text: 'Preciso de uma pauta para uma reuniao de:' },
+      { label: 'Registrar reuniao', text: 'Aconteceu a seguinte reuniao. Monte o registro executivo:' },
+      { label: 'Preparar para negociacao', text: 'Tenho uma negociacao importante. Me prepare:' },
+      { label: 'Documentar decisao', text: 'Tomamos a seguinte decisao. Documente com contexto:' }
+    ]
+  },
+  ap: {
+    id: 'ap',
+    name: 'Agente Principal',
+    shortName: 'Agente Principal',
+    desc: 'Seu JARVIS personalizado para sua dor de negocio',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+    </svg>`,
+    system: null, // loaded from user's AP
+    suggestions: [
+      { label: 'Diagnosticar situacao', text: 'Analise a situacao atual do meu negocio:' },
+      { label: 'Plano de acao', text: 'Preciso de um plano de acao para:' },
+      { label: 'Solucionar problema', text: 'Estou enfrentando o seguinte desafio:' },
+      { label: 'Revisao estrategica', text: 'Revisite minha estrategia atual:' }
+    ]
+  }
+};
+
+const AGENT_ORDER = ['agenda', 'tarefas', 'inteligencia', 'reunioes', 'ap'];
+
+// ===== STATE =====
+let currentAgent = null;
+let conversations = {}; // { agentId: [{ id, firstMsg, messages: [{role, content}] }] }
+let currentConvId = {}; // { agentId: convId }
+let isStreaming = false;
+let apSystemPrompt = null;
+let apSkillName = null;
+
+// ===== AUTH =====
+const token = localStorage.getItem('ws_token');
+const userRaw = localStorage.getItem('ws_user');
+let currentUser = null;
+
+if (!token || !userRaw) {
+  window.location.href = '/login.html';
+}
+
+try {
+  currentUser = JSON.parse(userRaw);
+  if (currentUser.role === 'admin') window.location.href = '/admin.html';
+} catch(e) {
+  window.location.href = '/login.html';
+}
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+}
+
+function logout() {
+  localStorage.removeItem('ws_token');
+  localStorage.removeItem('ws_user');
+  window.location.href = '/login.html';
+}
+
+// ===== INIT =====
+async function init() {
+  document.getElementById('userName').textContent = currentUser.name;
+
+  // Load AP status
+  await loadAPStatus();
+
+  // Build tabs
+  buildTabs();
+
+  // Select first agent
+  selectAgent('agenda');
+}
+
+async function loadAPStatus() {
+  try {
+    const res = await fetch('/api/users/ap', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      apSystemPrompt = data.systemPrompt;
+      apSkillName = data.agentName;
+      AGENTS.ap.system = apSystemPrompt;
+      updateAPStatus(true, apSkillName);
+    } else {
+      updateAPStatus(false, null);
+    }
+  } catch(e) {
+    updateAPStatus(false, null);
+  }
+}
+
+function updateAPStatus(active, name) {
+  const statusEl = document.getElementById('apStatus');
+  const nameEl = document.getElementById('apStatusName');
+  const descEl = document.getElementById('apStatusDesc');
+  const removeBtn = document.getElementById('btnRemoveAP');
+
+  if (active && name) {
+    statusEl.classList.add('active');
+    nameEl.textContent = name;
+    descEl.textContent = 'Agente Principal ativo e pronto para uso';
+    removeBtn.style.display = 'block';
+  } else {
+    statusEl.classList.remove('active');
+    nameEl.textContent = 'Nao configurado';
+    descEl.textContent = 'Faca upload do seu skill.md para ativar';
+    removeBtn.style.display = 'none';
+  }
+
+  // Update AP tab
+  const apTab = document.querySelector('[data-agent="ap"]');
+  if (apTab) {
+    if (active) {
+      apTab.style.opacity = '1';
+    } else {
+      apTab.style.opacity = '0.5';
+    }
+  }
+}
+
+// ===== TABS =====
+function buildTabs() {
+  const container = document.getElementById('agentTabs');
+  container.innerHTML = AGENT_ORDER.map(id => {
+    const a = AGENTS[id];
+    const isAP = id === 'ap';
+    return `
+      <button class="agent-tab ${isAP ? 'ap-tab' : ''}" data-agent="${id}" onclick="selectAgent('${id}')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          ${extractSVGContent(a.icon)}
+        </svg>
+        ${a.shortName}
+      </button>
+    `;
+  }).join('');
+}
+
+function extractSVGContent(svgStr) {
+  const match = svgStr.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
+  return match ? match[1] : '';
+}
+
+function selectAgent(agentId) {
+  if (isStreaming) return;
+
+  currentAgent = agentId;
+
+  // Update tabs
+  document.querySelectorAll('.agent-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.agent === agentId);
+  });
+
+  const agent = AGENTS[agentId];
+
+  // Update agent bar
+  document.getElementById('agentBarIcon').innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      ${extractSVGContent(agent.icon)}
+    </svg>`;
+  document.getElementById('agentBarName').textContent = agent.name;
+  document.getElementById('agentBarDesc').textContent = agent.desc;
+
+  // If AP not configured
+  if (agentId === 'ap' && !apSystemPrompt) {
+    showAPLock();
+    return;
+  }
+
+  // Load current conversation for this agent
+  renderCurrentConversation();
+  renderConvList();
+}
+
+function showAPLock() {
+  const wrap = document.getElementById('messagesWrap');
+  wrap.innerHTML = `
+    <div class="ap-lock">
+      <div class="ap-lock-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="ap-lock-title">Agente Principal Bloqueado</div>
+      <div class="ap-lock-desc">Seu Agente Principal ainda nao foi configurado. Faca o upload do arquivo skill.md gerado durante a sessao de design do AP para ativa-lo.</div>
+      <div class="upload-cta">
+        <button class="btn-upload-cta" onclick="triggerUpload()">Upload skill.md</button>
+        <div style="font-size:0.75rem;color:var(--muted)">O arquivo foi gerado na sua sessao no Claude.ai</div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== CONVERSATIONS =====
+function getConvKey(agentId) {
+  return agentId;
+}
+
+function getCurrentConv() {
+  const key = getConvKey(currentAgent);
+  if (!conversations[key]) conversations[key] = [];
+  const convId = currentConvId[key];
+  if (!convId) return null;
+  return conversations[key].find(c => c.id === convId) || null;
+}
+
+function newConversation() {
+  const key = getConvKey(currentAgent);
+  if (!conversations[key]) conversations[key] = [];
+  const id = Date.now().toString();
+  conversations[key].unshift({ id, firstMsg: 'Nova conversa', messages: [] });
+  currentConvId[key] = id;
+  renderCurrentConversation();
+  renderConvList();
+  document.getElementById('inputMsg').focus();
+}
+
+function selectConv(id) {
+  const key = getConvKey(currentAgent);
+  currentConvId[key] = id;
+  renderCurrentConversation();
+  renderConvList();
+}
+
+function renderConvList() {
+  const key = getConvKey(currentAgent);
+  const convs = conversations[key] || [];
+  const el = document.getElementById('convList');
+  if (convs.length === 0) {
+    el.innerHTML = `<div style="font-size:0.78rem;color:var(--muted);padding:0.5rem 0.75rem;">Nenhuma conversa ainda</div>`;
+    return;
+  }
+  el.innerHTML = convs.map(c => `
+    <div class="conv-item ${currentConvId[key] === c.id ? 'active' : ''}" onclick="selectConv('${c.id}')">
+      <div class="conv-item-agent">${AGENTS[currentAgent].shortName}</div>
+      <div class="conv-item-text">${c.firstMsg}</div>
+    </div>
+  `).join('');
+}
+
+function renderCurrentConversation() {
+  const wrap = document.getElementById('messagesWrap');
+  const conv = getCurrentConv();
+
+  if (!conv || conv.messages.length === 0) {
+    showWelcome();
+    return;
+  }
+
+  wrap.innerHTML = '';
+  conv.messages.forEach(msg => {
+    appendMessage(msg.role, msg.content, false);
+  });
+  scrollToBottom();
+}
+
+function showWelcome() {
+  const agent = AGENTS[currentAgent];
+  const wrap = document.getElementById('messagesWrap');
+  wrap.innerHTML = `
+    <div class="welcome-state">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          ${extractSVGContent(agent.icon)}
+        </svg>
+      </div>
+      <div class="welcome-title">${agent.name}</div>
+      <div class="welcome-desc">${agent.desc}</div>
+      <div class="suggestion-grid">
+        ${agent.suggestions.map(s => `
+          <button class="suggestion" onclick="useSuggestion('${escapeAttr(s.text)}')">
+            <div class="suggestion-label">${s.label}</div>
+            ${s.text}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function useSuggestion(text) {
+  const input = document.getElementById('inputMsg');
+  input.value = text;
+  autoResize(input);
+  input.focus();
+}
+
+function escapeAttr(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ===== MESSAGING =====
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+async function sendMessage() {
+  if (isStreaming) return;
+  const input = document.getElementById('inputMsg');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // If AP and not configured
+  if (currentAgent === 'ap' && !apSystemPrompt) {
+    showToast('Configure seu Agente Principal primeiro.', 'error');
+    return;
+  }
+
+  // Ensure conversation exists
+  const key = getConvKey(currentAgent);
+  if (!conversations[key]) conversations[key] = [];
+  if (!currentConvId[key]) {
+    const id = Date.now().toString();
+    conversations[key].unshift({ id, firstMsg: text.substring(0, 50), messages: [] });
+    currentConvId[key] = id;
+  }
+
+  const conv = getCurrentConv();
+  if (conv.messages.length === 0) {
+    conv.firstMsg = text.substring(0, 50);
+  }
+
+  // Add user message
+  conv.messages.push({ role: 'user', content: text });
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Render
+  const wrap = document.getElementById('messagesWrap');
+  if (wrap.querySelector('.welcome-state')) wrap.innerHTML = '';
+  appendMessage('user', text, false);
+
+  // Typing indicator
+  const typingEl = document.createElement('div');
+  typingEl.className = 'msg assistant';
+  typingEl.id = 'typingMsg';
+  typingEl.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-body">
+      <div class="msg-sender">${AGENTS[currentAgent].name}</div>
+      <div class="msg-bubble">
+        <div class="typing">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  wrap.appendChild(typingEl);
+  scrollToBottom();
+
+  isStreaming = true;
+  document.getElementById('btnSend').disabled = true;
+
+  // Get system prompt
+  const agent = AGENTS[currentAgent];
+  const systemPrompt = currentAgent === 'ap' ? apSystemPrompt : agent.system;
+
+  // Build messages array (max last 20 messages for context)
+  const msgHistory = conv.messages.slice(-20).map(m => ({
+    role: m.role,
+    content: m.content
+  }));
+
+  try {
+    const response = await fetch('/api/claude', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        messages: msgHistory,
+        systemPrompt,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
+      throw new Error(err.error || 'Erro na API');
+    }
+
+    // Remove typing
+    typingEl.remove();
+
+    // Stream response
+    const assistantEl = appendMessage('assistant', '', true);
+    const bubbleEl = assistantEl.querySelector('.msg-bubble');
+
+    let fullText = '';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+              fullText += parsed.delta.text;
+              bubbleEl.innerHTML = renderMD(fullText);
+              scrollToBottom();
+            }
+          } catch(e) {}
+        }
+      }
+    }
+
+    // Save to conversation
+    conv.messages.push({ role: 'assistant', content: fullText });
+    renderConvList();
+
+  } catch(err) {
+    typingEl.remove();
+    appendMessage('assistant', `**Erro:** ${err.message}`, false);
+  }
+
+  isStreaming = false;
+  document.getElementById('btnSend').disabled = false;
+  document.getElementById('inputMsg').focus();
+}
+
+function appendMessage(role, content, streaming) {
+  const wrap = document.getElementById('messagesWrap');
+  const agent = AGENTS[currentAgent];
+  const isUser = role === 'user';
+
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  el.innerHTML = `
+    <div class="msg-avatar">${isUser ? 'CEO' : 'AI'}</div>
+    <div class="msg-body">
+      <div class="msg-sender">${isUser ? currentUser.name : agent.name}</div>
+      <div class="msg-bubble">${isUser ? escapeHTML(content) : renderMD(content)}</div>
+    </div>
+  `;
+
+  wrap.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function scrollToBottom() {
+  const wrap = document.getElementById('messagesWrap');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== MARKDOWN =====
+function renderMD(text) {
+  if (!text) return '';
+  let html = text;
+
+  // Code blocks
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
+    `<pre><code>${escapeHTML(code.trim())}</code></pre>`);
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Headings
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // Bold & italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Blockquote
+  html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // HR
+  html = html.replace(/^---$/gm, '<hr>');
+
+  // Lists
+  html = html.replace(/^(\s*)- (.+)$/gm, '<li>$2</li>');
+  html = html.replace(/^(\s*)\d+\. (.+)$/gm, '<li>$2</li>');
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+  html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+  // Paragraphs
+  html = html.split(/\n\n+/).map(block => {
+    if (block.startsWith('<h') || block.startsWith('<ul') || block.startsWith('<pre') ||
+        block.startsWith('<blockquote') || block.startsWith('<hr')) return block;
+    return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+
+  return html;
+}
+
+// ===== AP UPLOAD =====
+function triggerUpload() {
+  document.getElementById('fileInput').click();
+}
+
+async function handleUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('skill', file);
+
+  showToast('Carregando Agente Principal...', '');
+
+  try {
+    const res = await fetch('/api/users/upload-ap', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.error || 'Erro ao fazer upload', 'error');
+      return;
+    }
+
+    await loadAPStatus();
+    showToast(`Agente Principal ativado: ${data.agentName}`, 'success');
+
+    // If currently on AP tab, re-render
+    if (currentAgent === 'ap') {
+      renderCurrentConversation();
+    }
+  } catch(e) {
+    showToast('Erro ao conectar com o servidor', 'error');
+  }
+
+  // Reset input
+  event.target.value = '';
+}
+
+async function removeAP() {
+  if (!confirm('Remover o Agente Principal? Voce precisara fazer upload novamente.')) return;
+
+  const res = await fetch('/api/users/ap', {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (res.ok) {
+    apSystemPrompt = null;
+    apSkillName = null;
+    AGENTS.ap.system = null;
+    updateAPStatus(false, null);
+    showToast('Agente Principal removido', '');
+    if (currentAgent === 'ap') showAPLock();
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast visible ${type || ''}`;
+  setTimeout(() => el.classList.remove('visible'), 3500);
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>
