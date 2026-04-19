@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WIN STARK — Executive AI Cockpit</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -30,7 +28,7 @@
 
   html, body {
     height: 100%;
-    font-family: 'Barlow', sans-serif;
+    font-family: Arial, sans-serif;
     background: var(--black);
     color: var(--white);
     overflow: hidden;
@@ -60,7 +58,7 @@
   }
 
   .header-logo {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 900;
     font-size: 1.35rem;
     letter-spacing: 0.04em;
@@ -74,7 +72,7 @@
   .header-badge {
     background: var(--blue);
     color: #fff;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 0.6rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -107,7 +105,7 @@
     gap: 0.5rem;
     padding: 0 1rem;
     height: var(--header-h);
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -168,7 +166,7 @@
     font-size: 0.75rem;
     padding: 5px 12px;
     cursor: pointer;
-    font-family: 'Barlow', sans-serif;
+    font-family: Arial, sans-serif;
     transition: all 0.2s;
   }
 
@@ -201,7 +199,7 @@
   }
 
   .sidebar-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -224,7 +222,7 @@
   }
 
   .ap-name {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 0.9rem;
     color: var(--blue-light);
@@ -249,9 +247,10 @@
     background: transparent;
     width: 100%;
     color: var(--muted);
+    user-select: none;
   }
 
-  .upload-area:hover {
+  .upload-area:hover, .upload-area.drag-over {
     border-color: var(--blue);
     background: var(--blue-dim);
     color: var(--blue-light);
@@ -278,7 +277,7 @@
     font-size: 0.7rem;
     padding: 4px 10px;
     cursor: pointer;
-    font-family: 'Barlow', sans-serif;
+    font-family: Arial, sans-serif;
     transition: all 0.2s;
     width: 100%;
     margin-top: 0.5rem;
@@ -334,7 +333,7 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-family: 'Barlow', sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 0.78rem;
     padding: 0.5rem 0.75rem;
     cursor: pointer;
@@ -381,7 +380,7 @@
   }
 
   .agent-info-name {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 1rem;
     letter-spacing: 0.05em;
@@ -440,7 +439,7 @@
   .welcome-icon svg { width: 30px; height: 30px; stroke: var(--blue-light); }
 
   .welcome-title {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 1.3rem;
     letter-spacing: 0.05em;
@@ -506,7 +505,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 0.7rem;
     letter-spacing: 0.05em;
@@ -555,7 +554,7 @@
 
   /* Markdown styles inside bubble */
   .msg-bubble h1,.msg-bubble h2,.msg-bubble h3 {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -665,7 +664,7 @@
     background: transparent;
     border: none;
     outline: none;
-    font-family: 'Barlow', sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 0.9rem;
     color: var(--white);
     resize: none;
@@ -724,7 +723,7 @@
   .ap-lock-icon svg { width: 28px; height: 28px; stroke: var(--muted); }
 
   .ap-lock-title {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 1.2rem;
     text-transform: uppercase;
@@ -752,7 +751,7 @@
     background: var(--blue);
     color: #fff;
     border: none;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 700;
     font-size: 0.9rem;
     letter-spacing: 0.15em;
@@ -816,15 +815,19 @@
         <div class="ap-desc" id="apStatusDesc">Faca upload do seu skill.md para ativar</div>
       </div>
 
-      <button class="upload-area" id="uploadArea" onclick="triggerUpload()">
+      <div class="upload-area" id="uploadArea"
+        onclick="triggerUpload()"
+        ondragover="handleDragOver(event)"
+        ondragleave="handleDragLeave(event)"
+        ondrop="handleDrop(event)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
         <div class="upload-text">Upload skill.md</div>
-        <div class="upload-hint">Arquivo gerado na sessao de design do AP</div>
-      </button>
+        <div class="upload-hint">Clique ou arraste o arquivo aqui</div>
+      </div>
       <input type="file" id="fileInput" accept=".md,text/markdown,text/plain" style="display:none" onchange="handleUpload(event)">
 
       <button class="btn-sm" id="btnRemoveAP" style="display:none" onclick="removeAP()">Remover Agente Principal</button>
@@ -913,6 +916,10 @@ const AGENTS = {
     </svg>`,
     system: `Voce e a Diretoria de Agenda Executiva do cockpit WIN STARK. Seu papel e ajudar o executivo a organizar sua semana com clareza e intencao estrategica.
 
+REGRAS ABSOLUTAS:
+- Nunca use emojis em nenhuma resposta. Zero emojis.
+- Use sempre o portugues brasileiro correto.
+
 Suas competencias:
 - Planejar a semana executiva, identificando prioridades criticas vs. operacionais
 - Preparar briefings para compromissos importantes (contexto, objetivos, riscos, perguntas-chave)
@@ -922,7 +929,7 @@ Suas competencias:
 
 Tom: direto, estrategico, sem enrolacao. Voce fala como um chief of staff de elite que conhece cada detalhe da agenda do CEO.
 
-Ao receber compromissos ou uma descricao da semana, estruture a resposta com: (1) Mapa da semana, (2) Top 3 prioridades, (3) Alertas de atencao, (4) Sugestoes de movimento.`,
+Ao receber compromissos ou uma descricao da semana, estruture a resposta com: (1) Mapeio da semana, (2) Top 3 prioridades, (3) Alertas de atencao, (4) Sugestoes de movimento.`,
     suggestions: [
       { label: 'Planejar semana', text: 'Preciso planejar minha semana. Tenho os seguintes compromissos:' },
       { label: 'Briefing de reuniao', text: 'Prepare um briefing para minha reuniao de amanha com:' },
@@ -940,6 +947,10 @@ Ao receber compromissos ou uma descricao da semana, estruture a resposta com: (1
       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
     </svg>`,
     system: `Voce e a Diretoria de Tarefas e Follow-up do cockpit WIN STARK. Seu trabalho e transformar conversas, reunioes e decisoes em acao real.
+
+REGRAS ABSOLUTAS:
+- Nunca use emojis em nenhuma resposta. Zero emojis.
+- Use sempre o portugues brasileiro correto.
 
 Suas competencias:
 - Capturar tarefas a partir de descricoes de reunioes, e-mails ou contextos
@@ -972,6 +983,10 @@ Formato padrao para tarefas:
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
     </svg>`,
     system: `Voce e a Diretoria de Informacao e Inteligencia do cockpit WIN STARK. Voce e o filtro inteligente do executivo.
+
+REGRAS ABSOLUTAS:
+- Nunca use emojis em nenhuma resposta. Zero emojis.
+- Use sempre o portugues brasileiro correto.
 
 Suas competencias:
 - Sintetizar documentos, relatorios, e-mails e artigos em insights acionaveis
@@ -1007,6 +1022,10 @@ Formato padrao para sinteses:
       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
     </svg>`,
     system: `Voce e a Diretoria de Reunioes e Decisoes do cockpit WIN STARK. Voce transforma reunioes em resultados reais.
+
+REGRAS ABSOLUTAS:
+- Nunca use emojis em nenhuma resposta. Zero emojis.
+- Use sempre o portugues brasileiro correto.
 
 Suas competencias:
 - Construir pautas eficientes com tempo, objetivo e dono por topico
@@ -1545,10 +1564,38 @@ function triggerUpload() {
   document.getElementById('fileInput').click();
 }
 
+function handleDragOver(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  document.getElementById('uploadArea').classList.add('drag-over');
+}
+
+function handleDragLeave(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  document.getElementById('uploadArea').classList.remove('drag-over');
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  document.getElementById('uploadArea').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.md') && file.type !== 'text/markdown' && file.type !== 'text/plain') {
+    showToast('Apenas arquivos .md sao aceitos', 'error');
+    return;
+  }
+  processUploadFile(file);
+}
+
 async function handleUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+  processUploadFile(file);
+}
 
+async function processUploadFile(file) {
   const formData = new FormData();
   formData.append('skill', file);
 
@@ -1571,7 +1618,6 @@ async function handleUpload(event) {
     await loadAPStatus();
     showToast(`Agente Principal ativado: ${data.agentName}`, 'success');
 
-    // If currently on AP tab, re-render
     if (currentAgent === 'ap') {
       renderCurrentConversation();
     }
@@ -1579,8 +1625,8 @@ async function handleUpload(event) {
     showToast('Erro ao conectar com o servidor', 'error');
   }
 
-  // Reset input
-  event.target.value = '';
+  // Reset file input
+  document.getElementById('fileInput').value = '';
 }
 
 async function removeAP() {
