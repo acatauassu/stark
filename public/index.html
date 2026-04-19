@@ -1494,10 +1494,12 @@ async function sendMessage() {
     conv.firstMsg = text.substring(0, 50);
   }
 
-  // Append file content if attached
+  // Append file content if attached (sent to API but not shown in full in chat)
   let fullUserContent = text;
+  let displayUserContent = text;
   if (attachedFileContent) {
     fullUserContent = `${text}\n\n---\n**Arquivo anexado: ${attachedFileNameStr}**\n\`\`\`\n${attachedFileContent}\n\`\`\``;
+    displayUserContent = text + (text ? '\n' : '') + `[Arquivo: ${attachedFileNameStr}]`;
     removeAttachment();
   }
 
@@ -1506,10 +1508,10 @@ async function sendMessage() {
   input.value = '';
   input.style.height = 'auto';
 
-  // Render
+  // Render (show display version, not full file content)
   const wrap = document.getElementById('messagesWrap');
   if (wrap.querySelector('.welcome-state')) wrap.innerHTML = '';
-  appendMessage('user', fullUserContent, false);
+  appendMessage('user', displayUserContent, false);
 
   // Typing indicator
   const typingEl = document.createElement('div');
@@ -1657,6 +1659,14 @@ Se o assunto for da sua competencia direta, responda sem rotear.`;
   document.getElementById('inputMsg').focus();
 }
 
+function renderUserMsg(content) {
+  // Replace [Arquivo: name] tags with a styled badge
+  const escaped = escapeHTML(content);
+  return escaped.replace(/\[Arquivo: ([^\]]+)\]/g,
+    '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(26,86,219,0.2);border:1px solid rgba(26,86,219,0.4);border-radius:6px;padding:2px 8px;font-size:12px;color:#93B4E8;margin-top:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>$1</span>'
+  );
+}
+
 function appendMessage(role, content, streaming) {
   const wrap = document.getElementById('messagesWrap');
   const agent = AGENTS[currentAgent];
@@ -1668,7 +1678,7 @@ function appendMessage(role, content, streaming) {
     <div class="msg-avatar">${isUser ? 'CEO' : 'AI'}</div>
     <div class="msg-body">
       <div class="msg-sender">${isUser ? currentUser.name : agent.name}</div>
-      <div class="msg-bubble">${isUser ? escapeHTML(content) : renderMD(content)}</div>
+      <div class="msg-bubble">${isUser ? renderUserMsg(content) : renderMD(content)}</div>
     </div>
   `;
 
