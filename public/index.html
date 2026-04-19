@@ -170,6 +170,29 @@
     opacity: 0.9;
   }
 
+  /* Agente Principal — tab de destaque */
+  .agent-tab.ap-tab {
+    font-weight: 600;
+    color: var(--blue);
+  }
+
+  .agent-tab.ap-tab .tab-dot {
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(43,108,176,0.2);
+  }
+
+  .agent-tab.ap-tab:hover {
+    background: var(--blue-dim);
+    border-color: rgba(43,108,176,0.25);
+    color: var(--blue);
+  }
+
+  .agent-tab.ap-tab.active {
+    background: var(--blue-dim);
+    border-color: rgba(43,108,176,0.35);
+    color: var(--blue);
+  }
+
   .header-user {
     display: flex;
     align-items: center;
@@ -976,8 +999,8 @@
     <div class="messages-wrap" id="messagesWrap">
       <div class="welcome-state" id="welcomeState">
         <div class="welcome-label">
-          <span class="welcome-label-dot" style="background:#F4C8C0"></span>
-          Agenda Executiva
+          <span class="welcome-label-dot" style="background:#2B6CB0"></span>
+          Agente Principal
         </div>
         <div class="welcome-greeting">Ola.</div>
         <div class="welcome-question">o que vamos resolver hoje?</div>
@@ -1257,7 +1280,7 @@ Formato para registro de reuniao:
   }
 };
 
-const AGENT_ORDER = ['agenda', 'tarefas', 'inteligencia', 'reunioes', 'ap'];
+const AGENT_ORDER = ['ap', 'agenda', 'tarefas', 'inteligencia', 'reunioes'];
 
 // ===== STATE =====
 let currentAgent = null;
@@ -1380,11 +1403,11 @@ function updateAPStatus(active, name) {
 
 // ===== TABS =====
 const AGENT_COLORS = {
+  ap: '#2B6CB0',
   agenda: '#F4C8C0',
   tarefas: '#CDDFB0',
   inteligencia: '#C8DCE8',
-  reunioes: '#E8D4E8',
-  ap: '#F4C8C0'
+  reunioes: '#E8D4E8'
 };
 
 function buildTabs() {
@@ -1392,8 +1415,9 @@ function buildTabs() {
   container.innerHTML = AGENT_ORDER.map(id => {
     const a = AGENTS[id];
     const color = AGENT_COLORS[id] || '#E8E2D7';
+    const extraClass = id === 'ap' ? ' ap-tab' : '';
     return `
-      <button class="agent-tab" data-agent="${id}" onclick="selectAgent('${id}')">
+      <button class="agent-tab${extraClass}" data-agent="${id}" onclick="selectAgent('${id}')">
         <span class="tab-dot" style="background:${color}"></span>
         ${a.shortName}
       </button>
