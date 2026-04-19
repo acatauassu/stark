@@ -202,12 +202,24 @@
   }
 
   .user-name {
-    font-size: 0.78rem;
-    color: var(--muted);
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: none; /* substituido pelo avatar de iniciais */
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--blue-dim);
+    border: 1px solid rgba(43,108,176,0.3);
+    color: var(--blue);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
   }
 
   .btn-logout {
@@ -489,16 +501,16 @@
   /* === MAIN CONTENT === */
   .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s; }
 
-  /* Fundo azul suave quando Agente Principal esta ativo */
+  /* Fundo azul quando Agente Principal esta ativo */
   .content.agent-ap {
-    background: radial-gradient(ellipse 80% 60% at 50% 0%,
-      rgba(43,108,176,0.07) 0%, transparent 70%),
+    background: radial-gradient(ellipse 90% 55% at 50% 0%,
+      rgba(43,108,176,0.18) 0%, transparent 65%),
       var(--black);
   }
 
   [data-theme="dark"] .content.agent-ap {
-    background: radial-gradient(ellipse 80% 60% at 50% 0%,
-      rgba(43,108,176,0.12) 0%, transparent 70%),
+    background: radial-gradient(ellipse 90% 55% at 50% 0%,
+      rgba(43,108,176,0.28) 0%, transparent 65%),
       var(--black);
   }
 
@@ -950,7 +962,7 @@
   </nav>
 
   <div class="header-user">
-    <span class="user-name" id="userName"></span>
+    <div class="user-avatar" id="userAvatar" title=""></div>
     <button class="btn-logout" onclick="logout()">Sair</button>
     <button id="themeToggle" title="Alternar tema" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
       <svg id="iconSun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -987,7 +999,7 @@
         <div class="upload-text">Upload skill.md</div>
         <div class="upload-hint">Clique ou arraste o arquivo aqui</div>
       </div>
-      <input type="file" id="fileInput" accept=".md,text/markdown,text/plain" style="display:none" onchange="handleUpload(event)">
+      <input type="file" id="fileInput" accept=".md,text/markdown,text/plain" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0);pointer-events:none;" onchange="handleUpload(event)">
 
       <button class="btn-sm" id="btnRemoveAP" style="display:none" onclick="removeAP()">Remover Agente Principal</button>
     </div>
@@ -1052,7 +1064,7 @@
       </div>
       <div class="input-hint">Enter para enviar &middot; Shift+Enter para nova linha &middot; Clipe para anexar PDF, Word, Excel, PowerPoint ou texto</div>
     </div>
-    <input type="file" id="chatFileInput" accept=".txt,.md,.csv,.html,.json,.xml,.pdf,.docx,.xlsx,.xls,.pptx" style="display:none" onchange="handleChatFile(event)">
+    <input type="file" id="chatFileInput" accept=".txt,.md,.csv,.html,.json,.xml,.pdf,.docx,.xlsx,.xls,.pptx" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0);pointer-events:none;" onchange="handleChatFile(event)">
   </section>
 
 </div>
@@ -1351,7 +1363,10 @@ async function init() {
     // Servidor offline — deixar continuar com dados locais
   }
 
-  document.getElementById('userName').textContent = currentUser.name;
+  const initials = currentUser.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const avatar = document.getElementById('userAvatar');
+  avatar.textContent = initials;
+  avatar.title = currentUser.name;
 
   // Init sidebar state
   initSidebar();
