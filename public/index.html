@@ -2,44 +2,69 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=Instrument+Serif&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23080C10%27/%3E%3Ctext x=%2716%27 y=%2724%27 font-family=%27Arial%27 font-weight=%27900%27 font-size=%2724%27 fill=%27%231A56DB%27 text-anchor=%27middle%27%3EW%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WIN STARK — Executive AI Cockpit</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* === WIN STARK DESIGN SYSTEM === */
   :root {
-    --black: #080C10;
-    --dark: #0D1117;
-    --card: #111923;
-    --card2: #0F1622;
-    --border: #1E2D3D;
-    --blue: #1A56DB;
-    --blue-hover: #1E63F5;
-    --blue-light: #3B82F6;
-    --blue-dim: rgba(26,86,219,0.15);
-    --blue-glow: rgba(26,86,219,0.25);
-    --white: #F0F4F8;
-    --muted: #6B8099;
-    --text: #C9D6E3;
-    --green: #22C55E;
-    --red: #EF4444;
+    --color-bg: #FAF7F2; --color-bg-subtle: #F3EFE8; --color-card: #FFFFFF;
+    --color-ink: #1F1D1A; --color-ink-2: #46433E; --color-ink-3: #78746D;
+    --color-line: #E8E2D7; --color-accent: #2B6CB0;
+    --color-peach: #F4C8C0; --color-lilac: #E8D4E8; --color-sky: #C8DCE8;
+    --color-success: #7BB77A;
+    --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --shadow-sm: 0 1px 3px rgba(30,25,15,0.06);
+    --shadow-md: 0 4px 12px rgba(30,25,15,0.07);
+    /* bridge */
+    --black: #FAF7F2; --dark: #F3EFE8; --card: #FFFFFF; --card2: #F3EFE8;
+    --border: #E8E2D7;
+    --blue: #2B6CB0; --blue-hover: #245A97; --blue-light: #3B82C4;
+    --blue-dim: rgba(43,108,176,0.1); --blue-glow: rgba(43,108,176,0.2);
+    --white: #1F1D1A; --muted: #78746D; --text: #46433E;
+    --green: #7BB77A; --red: #C0392B;
     --header-h: 60px;
+    --bg-glass: rgba(250,247,242,0.97);
+    --bg-overlay: rgba(250,247,242,0.8);
+    --bg-input: rgba(250,247,242,0.9);
+    --ambient-gradient: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(244,200,192,0.28) 0%, transparent 60%);
+  }
+  [data-theme="dark"] {
+    --color-bg: #17161A; --color-bg-subtle: #201E22; --color-card: #1E1C20;
+    --color-ink: #F5F2EC; --color-ink-2: #C9C5BD; --color-ink-3: #8A857D;
+    --color-line: #2B292E; --color-success: #7BB77A;
+    /* bridge */
+    --black: #17161A; --dark: #201E22; --card: #1E1C20; --card2: #201E22;
+    --border: #2B292E;
+    --blue: #2B6CB0; --blue-hover: #3B82C4; --blue-light: #60A5FA;
+    --blue-dim: rgba(43,108,176,0.15); --blue-glow: rgba(43,108,176,0.3);
+    --white: #F5F2EC; --muted: #8A857D; --text: #C9C5BD;
+    --green: #7BB77A; --red: #EF4444;
+    --bg-glass: rgba(23,22,26,0.97);
+    --bg-overlay: rgba(23,22,26,0.6);
+    --bg-input: rgba(23,22,26,0.75);
+    --ambient-gradient: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(43,108,176,0.08) 0%, transparent 60%);
   }
 
   html, body {
     height: 100%;
-    font-family: Arial, sans-serif;
+    font-family: var(--font-sans);
     background: var(--black);
     color: var(--white);
     overflow: hidden;
+    transition: background 0.3s, color 0.3s;
   }
 
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(26,86,219,0.08) 0%, transparent 60%);
+    background: var(--ambient-gradient);
     pointer-events: none;
     z-index: 0;
   }
@@ -50,7 +75,7 @@
     top: 0; left: 0; right: 0;
     z-index: 100;
     height: var(--header-h);
-    background: rgba(8,12,16,0.97);
+    background: var(--bg-glass);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
@@ -383,7 +408,7 @@
   .agent-bar {
     padding: 0.875rem 1.5rem;
     border-bottom: 1px solid var(--border);
-    background: rgba(8,12,16,0.5);
+    background: var(--bg-overlay);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -671,7 +696,7 @@
   .input-area {
     border-top: 1px solid var(--border);
     padding: 1rem 1.5rem;
-    background: rgba(8,12,16,0.6);
+    background: var(--bg-input);
     flex-shrink: 0;
   }
 
@@ -863,6 +888,7 @@
   .toast.success { border-left-color: var(--green); }
   .toast.error { border-left-color: var(--red); }
 </style>
+<script>(function(){var t=localStorage.getItem('ws_theme')||'light';document.documentElement.setAttribute('data-theme',t);})()</script>
 </head>
 <body>
 
@@ -879,6 +905,10 @@
   <div class="header-user">
     <span class="user-name" id="userName"></span>
     <button class="btn-logout" onclick="logout()">Sair</button>
+    <button id="themeToggle" title="Alternar tema" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+      <svg id="iconSun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
 </header>
 
@@ -998,6 +1028,29 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== THEME TOGGLE =====
+(function() {
+  const saved = localStorage.getItem('ws_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  function updateIcons() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const s = document.getElementById('iconSun');
+    const m = document.getElementById('iconMoon');
+    if (s) s.style.display = dark ? 'block' : 'none';
+    if (m) m.style.display = dark ? 'none' : 'block';
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    updateIcons();
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('ws_theme', next);
+      updateIcons();
+    });
+  });
+})();
+
 // ===== CONFIG =====
 const AGENTS = {
   agenda: {
