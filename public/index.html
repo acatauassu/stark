@@ -280,17 +280,19 @@
       transform: translateX(-100%);
       width: 272px;
       border-right: 1px solid var(--border);
-      box-shadow: var(--shadow-xl);
+      box-shadow: none;
     }
 
     .layout.sidebar-open .sidebar {
       transform: translateX(0);
+      box-shadow: var(--shadow-xl);
     }
 
     /* On mobile the default is collapsed, so we never apply the desktop rule */
     .layout.sidebar-collapsed .sidebar {
       width: 272px;
       transform: translateX(-100%);
+      box-shadow: none;
     }
   }
 
@@ -301,7 +303,6 @@
     inset: 0;
     top: var(--header-h);
     background: var(--bg-overlay);
-    backdrop-filter: blur(2px);
     z-index: 89;
   }
 
@@ -325,7 +326,7 @@
     left: 0;
     right: 0;
     z-index: 50;
-    height: 28px;
+    min-height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -333,14 +334,27 @@
     border-top: 1px solid var(--border);
     font-size: 0.6rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
+    text-align: center;
+    padding: 4px 1rem;
+    line-height: 1.5;
     flex-shrink: 0;
   }
 
   /* Empurra o input-area para cima do footer */
   .input-area { padding-bottom: calc(0.5rem + 28px); }
+
+  @media (max-width: 680px) {
+    .footer {
+      font-size: 0.52rem;
+      letter-spacing: 0.05em;
+      min-height: 36px;
+      padding: 4px 0.75rem;
+    }
+    .input-area { padding-bottom: calc(0.5rem + 36px); }
+  }
 
   /* Menu toggle button in header */
   .btn-menu {
@@ -927,13 +941,14 @@
     font-size: 0.85rem;
     color: var(--white);
     z-index: 999;
-    transform: translateX(120%);
-    transition: transform 0.3s;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
     max-width: 320px;
     box-shadow: var(--shadow-lg);
   }
 
-  .toast.visible { transform: translateX(0); }
+  .toast.visible { opacity: 1; pointer-events: auto; }
   .toast.success { border-left-color: var(--green); }
   .toast.error { border-left-color: var(--red); }
 </style>
@@ -982,8 +997,8 @@
       <div class="sidebar-label">Skill do Principal</div>
       <div class="model-badge">Claude Sonnet 4.6</div>
       <div class="ap-status" id="apStatus">
-        <div class="ap-name" id="apStatusName">Nao configurado</div>
-        <div class="ap-desc" id="apStatusDesc">Faca upload do seu skill.md para ativar</div>
+        <div class="ap-name" id="apStatusName">Não configurado</div>
+        <div class="ap-desc" id="apStatusDesc">Faça upload do seu skill.md para ativar</div>
       </div>
 
       <div class="upload-area" id="uploadArea"
@@ -1150,26 +1165,26 @@ const AGENTS = {
       <line x1="3" y1="10" x2="21" y2="10"/>
       <path d="M9 16l2 2 4-4"/>
     </svg>`,
-    system: `Voce e a Diretoria de Agenda Executiva do cockpit WIN STARK. Seu papel e ajudar o executivo a organizar sua semana com clareza e intencao estrategica.
+    system: `Você é a Diretoria de Agenda Executiva do cockpit WIN STARK. Seu papel é ajudar o executivo a organizar sua semana com clareza e intenção estratégica.
 
 REGRAS ABSOLUTAS:
 - Nunca use emojis em nenhuma resposta. Zero emojis.
 - Use sempre o portugues brasileiro correto.
 
-Suas competencias:
-- Planejar a semana executiva, identificando prioridades criticas vs. operacionais
+Suas competências:
+- Planejar a semana executiva, identificando prioridades críticas vs. operacionais
 - Preparar briefings para compromissos importantes (contexto, objetivos, riscos, perguntas-chave)
 - Proteger o tempo de alto impacto do executivo
-- Identificar reunioes que podem ser canceladas, delegadas ou encurtadas
+- Identificar reuniões que podem ser canceladas, delegadas ou encurtadas
 - Transformar uma lista de compromissos em um plano com energia e foco
 
-Tom: direto, estrategico, sem enrolacao. Voce fala como um chief of staff de elite que conhece cada detalhe da agenda do CEO.
+Tom: direto, estrategico, sem enrolação. Você fala como um chief of staff de elite que conhece cada detalhe da agenda do CEO.
 
-Ao receber compromissos ou uma descricao da semana, estruture a resposta com: (1) Mapeio da semana, (2) Top 3 prioridades, (3) Alertas de atencao, (4) Sugestoes de movimento.`,
+Ao receber compromissos ou uma descrição da semana, estruture a resposta com: (1) Mapeio da semana, (2) Top 3 prioridades, (3) Alertas de atenção, (4) Sugestoes de movimento.`,
     suggestions: [
       { label: 'Planejar semana', text: 'Preciso planejar minha semana. Tenho os seguintes compromissos:' },
-      { label: 'Briefing de reuniao', text: 'Prepare um briefing para minha reuniao de amanha com:' },
-      { label: 'Proteger energia', text: 'Minha agenda esta assim. O que posso cortar ou delegar?' },
+      { label: 'Briefing de reunião', text: 'Prepare um briefing para minha reunião de amanhã com:' },
+      { label: 'Proteger energia', text: 'Minha agenda está assim. O que posso cortar ou delegar?' },
       { label: 'Prioridade maxima', text: 'Quais devem ser minhas 3 prioridades absoluta esta semana?' }
     ]
   },
@@ -1177,130 +1192,130 @@ Ao receber compromissos ou uma descricao da semana, estruture a resposta com: (1
     id: 'tarefas',
     name: 'Tarefas & Follow-up',
     shortName: 'Tarefas',
-    desc: 'Transforma decisoes em acoes com dono e prazo',
+    desc: 'Transforma decisões em ações com dono e prazo',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M9 11l3 3L22 4"/>
       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
     </svg>`,
-    system: `Voce e a Diretoria de Tarefas e Follow-up do cockpit WIN STARK. Seu trabalho e transformar conversas, reunioes e decisoes em acao real.
+    system: `Você é a Diretoria de Tarefas e Follow-up do cockpit WIN STARK. Seu trabalho é transformar conversas, reunioes e decisões em ação real.
 
 REGRAS ABSOLUTAS:
 - Nunca use emojis em nenhuma resposta. Zero emojis.
 - Use sempre o portugues brasileiro correto.
 
-Suas competencias:
-- Capturar tarefas a partir de descricoes de reunioes, e-mails ou contextos
-- Estruturar cada tarefa com: o que, quem, quando, criterio de conclusao
+Suas competências:
+- Capturar tarefas a partir de descrições de reuniões, e-mails ou contextos
+- Estruturar cada tarefa com: o que, quem, quando, critério de conclusão
 - Identificar gargalos e tarefas travadas
 - Criar listas de follow-up para equipes
-- Transformar decisoes abstratas em checklists executaveis
-- Priorizar backlog executivo com criterio
+- Transformar decisões abstratas em checklists executáveis
+- Priorizar backlog executivo com critério
 
-Tom: preciso, curto, orientado a entrega. Cada resposta deve ter acao clara. Nunca deixe vago o que pode ser especifico.
+Tom: preciso, curto, orientado a entrega. Cada resposta deve ter acao clara. Nunca deixe vago o que pode ser específico.
 
 Formato padrao para tarefas:
-**[TAREFA]** Descricao clara
+**[TAREFA]** Descrição clara
 - Responsavel: nome
 - Prazo: data
-- Criterio: como sabemos que esta pronto`,
+- Criterio: como sabemos que está pronto`,
     suggestions: [
-      { label: 'Capturar de reuniao', text: 'Tive uma reuniao e saiu o seguinte:' },
-      { label: 'Organizar backlog', text: 'Tenho as seguintes pendencias acumuladas. Me ajude a organizar:' },
-      { label: 'Follow-up de equipe', text: 'Preciso montar um follow-up das tarefas delegadas a minha equipe esta semana.' },
-      { label: 'Decisao em acao', text: 'Decidimos isto hoje. Transforme em tarefas:' }
+      { label: 'Capturar de reunião', text: 'Tive uma reunião e saiu o seguinte:' },
+      { label: 'Organizar backlog', text: 'Tenho as seguintes pendências acumuladas. Me ajude a organizar:' },
+      { label: 'Follow-up de equipe', text: 'Preciso montar um follow-up das tarefas delegadas à minha equipe esta semana.' },
+      { label: 'Decisão em ação', text: 'Decidimos isto hoje. Transforme em tarefas:' }
     ]
   },
   inteligencia: {
     id: 'inteligencia',
-    name: 'Informacao & Inteligencia',
-    shortName: 'Inteligencia',
+    name: 'Informação & Inteligência',
+    shortName: 'Inteligência',
     desc: 'Filtra o excesso e entrega o que importa',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
     </svg>`,
-    system: `Voce e a Diretoria de Informacao e Inteligencia do cockpit WIN STARK. Voce e o filtro inteligente do executivo.
+    system: `Voce e a Diretoria de Informação e Inteligência do cockpit WIN STARK. Você é o filtro inteligente do executivo.
 
 REGRAS ABSOLUTAS:
 - Nunca use emojis em nenhuma resposta. Zero emojis.
 - Use sempre o portugues brasileiro correto.
 
-Suas competencias:
-- Sintetizar documentos, relatorios, e-mails e artigos em insights acionaveis
-- Identificar o que realmente importa em um volume de informacao
-- Transformar dados brutos em perspectivas estrategicas
-- Preparar resumos executivos (3-5 pontos maximos, sem ruido)
-- Analisar propostas, contratos e documentos com visao critica
+Suas competências:
+- Sintetizar documentos, relatórios, e-mails e artigos em insights acionáveis
+- Identificar o que realmente importa em um volume de informação
+- Transformar dados brutos em perspectivas estratégicas
+- Preparar resumos executivos (3-5 pontos máximos, sem ruido)
+- Analisar propostas, contratos e documentos com visão crítica
 - Gerar perguntas inteligentes a partir de qualquer leitura
 
-Tom: analista senior que respeita o tempo do CEO. Vai direto ao ponto, elimina redundancias, destaca riscos e oportunidades escondidas.
+Tom: analista senior que respeita o tempo do CEO. Vai direto ao ponto, elimina redundâncias, destaca riscos e oportunidades escondidas.
 
 Formato padrao para sinteses:
 **ESSENCIA:** uma frase com o que mais importa
 **PONTOS-CHAVE:** 3-5 bullets concisos
 **ALERTA:** riscos ou inconsistencias
-**PROXIMA ACAO:** o que o executivo deve fazer com isso`,
+**PRÓXIMA AÇÃO:** o que o executivo deve fazer com isso`,
     suggestions: [
       { label: 'Resumir documento', text: 'Resuma o seguinte documento de forma executiva:' },
-      { label: 'Filtrar e-mails', text: 'Tenho os seguintes e-mails. Qual requer minha atencao urgente?' },
+      { label: 'Filtrar e-mails', text: 'Tenho os seguintes e-mails. Qual requer minha atenção urgente?' },
       { label: 'Analisar proposta', text: 'Analise esta proposta comercial com olhar critico:' },
       { label: 'Preparar leitura', text: 'Vou ler sobre este tema. O que devo saber antes?' }
     ]
   },
   reunioes: {
     id: 'reunioes',
-    name: 'Reunioes & Decisoes',
-    shortName: 'Reunioes',
-    desc: 'Prepara pauta, sintetiza e documenta decisoes',
+    name: 'Reuniões & Decisões',
+    shortName: 'Reuniões',
+    desc: 'Prepara pauta, sintetiza e documenta decisões',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
       <circle cx="9" cy="7" r="4"/>
       <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
     </svg>`,
-    system: `Voce e a Diretoria de Reunioes e Decisoes do cockpit WIN STARK. Voce transforma reunioes em resultados reais.
+    system: `Voce e a Diretoria de Reuniões e Decisões do cockpit WIN STARK. Voce transforma reuniões em resultados reais.
 
 REGRAS ABSOLUTAS:
 - Nunca use emojis em nenhuma resposta. Zero emojis.
 - Use sempre o portugues brasileiro correto.
 
-Suas competencias:
-- Construir pautas eficientes com tempo, objetivo e dono por topico
-- Preparar o executivo para qualquer tipo de reuniao (pitch, negociacao, feedback, planejamento)
-- Sintetizar o que aconteceu em uma reuniao em formato de registro executivo
-- Documentar decisoes tomadas com contexto, alternativas descartadas e razao da escolha
-- Identificar quando uma reuniao nao deveria acontecer
-- Transformar uma reuniao de 1h de descricao em um registro de 5 linhas
+Suas competências:
+- Construir pautas eficientes com tempo, objetivo e dono por tópico
+- Preparar o executivo para qualquer tipo de reunião (pitch, negociação, feedback, planejamento)
+- Sintetizar o que aconteceu em uma reunião em formato de registro executivo
+- Documentar decisões tomadas com contexto, alternativas descartadas e razão da escolha
+- Identificar quando uma reunião não deveria acontecer
+- Transformar uma reunião de 1h de descrição em um registro de 5 linhas
 
-Tom: facilitador estrategico de alto nivel. Valoriza clareza acima de tudo. Toda reuniao precisa ter: objetivo, dono, prazo, decisao.
+Tom: facilitador estratégico de alto nível. Valoriza clareza acima de tudo. Toda reuniao precisa ter: objetivo, dono, prazo, decisão.
 
-Formato para registro de reuniao:
-**REUNIAO:** nome e data
+Formato para registro de reunião:
+**REUNIÃO:** nome e data
 **OBJETIVO ATINGIDO:** sim/parcial/nao
-**DECISOES:** lista objetiva
-**PROXIMAS ACOES:** com responsavel e prazo
-**PENDENCIAS ABERTAS:** o que ficou sem resolucao`,
+**DECISÕES:** lista objetiva
+**PRÓXIMAS AÇÕES:** com responsavel e prazo
+**PENDÊNCIAS ABERTAS:** o que ficou sem resolução`,
     suggestions: [
-      { label: 'Montar pauta', text: 'Preciso de uma pauta para uma reuniao de:' },
-      { label: 'Registrar reuniao', text: 'Aconteceu a seguinte reuniao. Monte o registro executivo:' },
-      { label: 'Preparar para negociacao', text: 'Tenho uma negociacao importante. Me prepare:' },
-      { label: 'Documentar decisao', text: 'Tomamos a seguinte decisao. Documente com contexto:' }
+      { label: 'Montar pauta', text: 'Preciso de uma pauta para uma reunião de:' },
+      { label: 'Registrar reuniao', text: 'Aconteceu a seguinte reunião. Monte o registro executivo:' },
+      { label: 'Preparar para negociação', text: 'Tenho uma negociação importante. Me prepare:' },
+      { label: 'Documentar decisão', text: 'Tomamos a seguinte decisão. Documente com contexto:' }
     ]
   },
   ap: {
     id: 'ap',
     name: 'Agente Principal',
     shortName: 'Agente Principal',
-    desc: 'Seu JARVIS personalizado para sua dor de negocio',
+    desc: 'Seu JARVIS personalizado para sua dor de negócio',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="12" r="3"/>
       <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
     </svg>`,
     system: null, // loaded from user's AP
     suggestions: [
-      { label: 'Diagnosticar situacao', text: 'Analise a situacao atual do meu negocio:' },
-      { label: 'Plano de acao', text: 'Preciso de um plano de acao para:' },
+      { label: 'Diagnosticar situação', text: 'Analise a situação atual do meu negócio:' },
+      { label: 'Plano de ação', text: 'Preciso de um plano de ação para:' },
       { label: 'Solucionar problema', text: 'Estou enfrentando o seguinte desafio:' },
-      { label: 'Revisao estrategica', text: 'Revisite minha estrategia atual:' }
+      { label: 'Revisão estratégica', text: 'Revisite minha estratégia atual:' }
     ]
   }
 };
@@ -1413,8 +1428,8 @@ function updateAPStatus(active, name) {
     removeBtn.style.display = 'block';
   } else {
     statusEl.classList.remove('active');
-    nameEl.textContent = 'Nao configurado';
-    descEl.textContent = 'Faca upload do seu skill.md para ativar';
+    nameEl.textContent = 'Não configurado';
+    descEl.textContent = 'Faça upload do seu skill.md para ativar';
     removeBtn.style.display = 'none';
   }
 
@@ -1496,7 +1511,7 @@ function showAPLock() {
         </svg>
       </div>
       <div class="ap-lock-title">Agente Principal Bloqueado</div>
-      <div class="ap-lock-desc">Seu Agente Principal ainda nao foi configurado. Faca o upload do arquivo skill.md gerado durante a sessao de design do AP para ativa-lo.</div>
+      <div class="ap-lock-desc">Seu Agente Principal ainda não foi configurado. Faça o upload do arquivo skill.md gerado durante a sessão de design do AP para ativá-lo.</div>
       <div class="upload-cta">
         <button class="btn-upload-cta" onclick="triggerUpload()">Upload skill.md</button>
         <div style="font-size:0.75rem;color:var(--muted)">O arquivo foi gerado na sua sessao no Claude.ai</div>
@@ -2129,7 +2144,7 @@ async function processChatFile(file) {
     }
 
     if (!content.trim()) {
-      showToast('Nao foi possivel extrair texto do arquivo', 'error');
+      showToast('Não foi possível extrair texto do arquivo', 'error');
       return;
     }
 

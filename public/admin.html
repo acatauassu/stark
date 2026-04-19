@@ -399,7 +399,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 28px;
+    min-height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -407,10 +407,23 @@
     border-top: 1px solid var(--border);
     font-size: 0.6rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--muted);
     text-transform: uppercase;
+    text-align: center;
+    padding: 4px 1rem;
+    line-height: 1.5;
     z-index: 50;
+  }
+
+  @media (max-width: 680px) {
+    .footer-text, .footer {
+      font-size: 0.52rem;
+      letter-spacing: 0.05em;
+      min-height: 36px;
+      padding: 4px 0.75rem;
+      line-height: 1.5;
+    }
   }
 </style>
 <script>(function(){var t=localStorage.getItem('ws_theme')||'light';document.documentElement.setAttribute('data-theme',t);})()</script>
