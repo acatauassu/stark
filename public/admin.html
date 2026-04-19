@@ -469,6 +469,11 @@
     window.location.href = '/login.html';
   }
 
+  // Validar token contra o servidor
+  fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } })
+    .then(r => { if (!r.ok) { localStorage.removeItem('ws_token'); localStorage.removeItem('ws_user'); window.location.href = '/login.html'; } })
+    .catch(() => {});
+
   document.getElementById('adminName').textContent = user.name || 'Admin';
 
   function logout() {

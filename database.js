@@ -1,8 +1,19 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
+// DB_PATH pode ser configurado via env var para usar o Render Persistent Disk
+// Exemplo: DB_PATH=/data/stark.db
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'stark.db');
+
+// Garantir que o diretorio existe
+const DB_DIR = path.dirname(DB_PATH);
+if (!fs.existsSync(DB_DIR)) {
+  fs.mkdirSync(DB_DIR, { recursive: true });
+}
+
+console.log(`[DB] Usando banco em: ${DB_PATH}`);
 const db = new Database(DB_PATH);
 
 // Enable WAL mode for better concurrency

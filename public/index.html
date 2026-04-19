@@ -1204,6 +1204,26 @@ function logout() {
 
 // ===== INIT =====
 async function init() {
+  // Validate token against server before doing anything
+  try {
+    const check = await fetch('/api/auth/me', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!check.ok) {
+      // Token invalido ou usuario nao existe mais — limpar e redirecionar
+      localStorage.removeItem('ws_token');
+      localStorage.removeItem('ws_user');
+      window.location.href = '/login.html';
+      return;
+    }
+    // Atualizar dados locais com o que o servidor retornou
+    const fresh = await check.json();
+    currentUser = { ...currentUser, ...fresh };
+    localStorage.setItem('ws_user', JSON.stringify(currentUser));
+  } catch(e) {
+    // Servidor offline — deixar continuar com dados locais
+  }
+
   document.getElementById('userName').textContent = currentUser.name;
 
   // Load AP status
