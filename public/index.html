@@ -1412,7 +1412,24 @@ async function sendMessage() {
 
   // Get system prompt
   const agent = AGENTS[currentAgent];
-  const systemPrompt = currentAgent === 'ap' ? apSystemPrompt : agent.system;
+  const AP_ROUTING_CONTEXT = `
+
+CONTEXTO DA PLATAFORMA:
+Voce opera dentro do cockpit web WIN STARK. O usuario tem acesso a 4 diretorias especializadas, acessadas por abas na interface. Quando o usuario pedir algo que e responsabilidade de uma dessas diretorias, voce deve:
+1. Informar brevemente que vai acionar aquela diretoria
+2. Incluir EXATAMENTE um dos termos abaixo na sua resposta (o cockpit faz a transferencia automatica):
+   - @agente-agenda — para agenda, semana, compromissos, prioridades
+   - @agente-tarefas — para tarefas, acoes, follow-up, pendencias
+   - @agente-inteligencia — para resumos, analises, documentos, inteligencia
+   - @agente-reunioes — para pautas, atas, decisoes, preparacao de reunioes
+3. Apos o termo de roteamento, coloque um traco e o contexto resumido que o usuario deve levar para aquela diretoria.
+Exemplo: @agente-agenda — usuario quer organizar seus compromissos desta semana.
+
+Se o assunto for da sua competencia direta, responda sem rotear.`;
+
+  const systemPrompt = currentAgent === 'ap'
+    ? (apSystemPrompt || '') + AP_ROUTING_CONTEXT
+    : agent.system;
 
   // Build messages array (max last 20 messages for context)
   const msgHistory = conv.messages.slice(-20).map(m => ({
@@ -1475,6 +1492,36 @@ async function sendMessage() {
     // Save to conversation
     conv.messages.push({ role: 'assistant', content: fullText });
     renderConvList();
+
+    // Auto-routing: detect @agente-X in AP responses
+    if (currentAgent === 'ap') {
+      const routingMap = {
+        '@agente-agenda': 'agenda',
+        '@agente-tarefas': 'tarefas',
+        '@agente-inteligencia': 'inteligencia',
+        '@agente-reunioes': 'reunioes'
+      };
+
+      for (const [mention, agentId] of Object.entries(routingMap)) {
+        if (fullText.includes(mention)) {
+          // Extract context after the @mention (text after dash on same line)
+          const mentionLine = fullText.split('\n').find(l => l.includes(mention)) || '';
+          const contextPart = mentionLine.replace(mention, '').replace(/^[\s\u2014\-—]+/, '').trim();
+
+          setTimeout(() => {
+            showToast(`Transferindo para ${AGENTS[agentId].name}...`, 'success');
+            selectAgent(agentId);
+            if (contextPart) {
+              const input = document.getElementById('inputMsg');
+              input.value = contextPart;
+              autoResize(input);
+              input.focus();
+            }
+          }, 600);
+          break;
+        }
+      }
+    }
 
   } catch(err) {
     typingEl.remove();
