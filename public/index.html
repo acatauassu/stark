@@ -487,7 +487,20 @@
   .btn-new-conv:hover { border-color: var(--blue); color: var(--blue); }
 
   /* === MAIN CONTENT === */
-  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s; }
+
+  /* Fundo azul suave quando Agente Principal esta ativo */
+  .content.agent-ap {
+    background: radial-gradient(ellipse 80% 60% at 50% 0%,
+      rgba(43,108,176,0.07) 0%, transparent 70%),
+      var(--black);
+  }
+
+  [data-theme="dark"] .content.agent-ap {
+    background: radial-gradient(ellipse 80% 60% at 50% 0%,
+      rgba(43,108,176,0.12) 0%, transparent 70%),
+      var(--black);
+  }
 
   /* === MESSAGES === */
   .messages-wrap {
@@ -1350,7 +1363,7 @@ async function init() {
   buildTabs();
 
   // Select first agent
-  selectAgent('agenda');
+  selectAgent('ap');
 }
 
 async function loadAPStatus() {
@@ -1439,6 +1452,10 @@ function selectAgent(agentId) {
   document.querySelectorAll('.agent-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.agent === agentId);
   });
+
+  // Fundo azul suave na area de conteudo quando AP esta ativo
+  const contentEl = document.querySelector('.content');
+  if (contentEl) contentEl.classList.toggle('agent-ap', agentId === 'ap');
 
   const agent = AGENTS[agentId];
 
